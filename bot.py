@@ -3,7 +3,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart,Command
 from aiogram import F
 from aiogram.types import Message,InlineKeyboardButton
-from data import config
+from data import config,nick
 import asyncio
 import logging
 import sys
@@ -16,6 +16,7 @@ from aiogram.fsm.context import FSMContext #new
 from states.reklama import Adverts
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import time 
+
 
 ADMINS = config.ADMINS
 TOKEN = config.BOT_TOKEN
@@ -37,6 +38,7 @@ async def start_command(message:Message):
         await message.answer(text="Assalomu alaykum")
 
 
+
 @dp.message(IsCheckSubChannels())
 async def kanalga_obuna(message:Message):
     text = ""
@@ -47,6 +49,17 @@ async def kanalga_obuna(message:Message):
     inline_channel.adjust(1,repeat=True)
     button = inline_channel.as_markup()
     await message.answer(f"{text} kanallarga azo bo'ling",reply_markup=button)
+
+#nick
+@dp.message(F.text)
+async def nick_gener(message:Message):
+    name = message.text
+    result = nick.nick_generator(name=name)
+    text = "Natija:\n"
+    for i in result:
+        text += f"<code>{i}</code>\n"
+    await message.answer(text)
+
 
 
 
