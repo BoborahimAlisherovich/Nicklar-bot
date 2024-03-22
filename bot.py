@@ -9,8 +9,8 @@ import logging
 import sys
 from menucommands.set_bot_commands  import set_default_commands
 from baza.sqlite import Database
-from filters.admin import IsBotAdminFilter
-from filters.check_sub_channel import IsCheckSubChannels
+from filterss.admin import IsBotAdminFilter
+from filterss.check_sub_channel import IsCheckSubChannels
 from keyboard_buttons import admin_keyboard
 from aiogram.fsm.context import FSMContext #new
 from states.reklama import Adverts
@@ -33,9 +33,9 @@ async def start_command(message:Message):
     telegram_id = message.from_user.id
     try:
         db.add_user(full_name=full_name,telegram_id=telegram_id) #foydalanuvchi bazaga qo'shildi
-        await message.answer(text="Assalomu alaykum, botimizga hush kelibsiz")
+        await message.answer(text="Assalomu alaykum Botimizdan foydalinish ucun biror bir suz kriting")
     except:
-        await message.answer(text="Assalomu alaykum")
+        await message.answer(text="Assalomu alaykum Botimizdan foydalinish ucun biror bir suz kriting")
 
 
 
@@ -66,14 +66,14 @@ async def nick_gener(message:Message):
 #help commands
 @dp.message(Command("help"))
 async def help_commands(message:Message):
-    await message.answer("Sizga qanday yordam kerak")
+    await message.answer("Bu botga start tugmasi bosilgandan kiyin biror bir ism yoki so'z yuboring natijsini uzingiz bilib olasiz")
 
 
 
 #about commands
 @dp.message(Command("about"))
 async def about_commands(message:Message):
-    await message.answer("Sifat 2024")
+    await message.answer("Dasturchi Rustamqulov Boborahim 2023-2024 - yillar davomida SIFAT uquv markazi urganuvchisi bulmoqda kelajakda niyatlar katta")
 
 
 @dp.message(Command("admin"),IsBotAdminFilter(ADMINS))
