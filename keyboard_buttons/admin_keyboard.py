@@ -12,3 +12,30 @@ admin_button = ReplyKeyboardMarkup(
    resize_keyboard=True,
    input_field_placeholder="Menudan birini tanlang"
 )
+
+
+start_button = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="✍️ Qisqa nick"),
+            KeyboardButton(text="✍️ Uzun nick"),
+        ],
+         [
+            KeyboardButton(text="📙Qo'llanma"),
+            KeyboardButton(text="👨‍💼Admin"),
+        ]
+        
+        
+    ],
+  resize_keyboard=True
+)
+
+
+orqaga_button = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="♻️ Orqaga"),        
+        ]      
+    ],
+  resize_keyboard=True
+)

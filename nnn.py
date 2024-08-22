@@ -46,44 +46,82 @@ yozuv = [
 
 
 
-
 def add_stylized_effects(text):
-    special_chars = [" ",]
+    special_chars = [" "]
     result = ""
     for char in text:
         result += char + random.choice(special_chars)
     return result
 
-
-
-
-def nick_generator(name,son=None):
+def nick_generator(name):
     result = []
-    if son:
-        fon = yozuv[son-1]
-        min_length = max(len(text), len(fon))
+    for fon in yozuv:
+        min_length = min(len(text), len(fon))
         my_name = name.lower()
         for i in range(min_length):
             my_name = my_name.replace(text[i], fon[i])
-            
-            
-        return my_name
+        
+        # Tasodifiy emoji qo'shish
+        random_emoji = random.choice(emojilar)
+        stylized_name = add_stylized_effects(my_name)
+        my_name_with_emoji = f"{random_emoji} {stylized_name} {random_emoji}"
+        
+        result.append(my_name_with_emoji)
+    return result
+
+
+
+def long_nick(text, style_number):
+    if 1 <= style_number <= len(yozuv):
+        fon = yozuv[style_number - 1]
+        m_name = text.lower()
+        stylized_name = add_stylized_effects(m_name)
+        # stylized_name = ""
+        for char in text:
+            index = text.find(char)
+            if index < len(fon):
+                stylized_name += fon[index]
+            else:
+                stylized_name += char
+
+        # Add random emoji
+        random_emoji = random.choice(emojilar)
+        my_name_with_emoji = f"{random_emoji} {add_stylized_effects(stylized_name)} {random_emoji}"
+        return my_name_with_emoji
     else:
-        for fon in yozuv:
-            min_length = min(len(text), len(fon))
-            my_name = name.lower()
-            for i in range(min_length):
-                my_name = my_name.replace(text[i], fon[i])
-            
-            # Tasodifiy emoji qo'shish
-            random_emoji = random.choice(emojilar)
-            stylized_name = add_stylized_effects(my_name)
-            my_name_with_emoji = f"{random_emoji} {stylized_name} {random_emoji}"
-            
-            result.append(my_name_with_emoji)
-        return result
+        return "Noto'g'ri raqam. Iltimos, 1 dan {} gacha bo'lgan raqamni kiriting.".format(len(yozuv))
+
+# Test the long_nick function
+print(long_nick("Boborahim", 4))
 
 
 
+def nick_uzun(text,style_number):
+    result = []
+    if not (1 <= style_number <= 33):
+        raise ValueError("Style number must be between 1 and 33")
+
+    # Example function to add stylized effects
+    def add_stylized_effects(name):
+        # Add your stylized effects logic here
+        return name
+
+    # Select a style based on the style_number
+    fon = yozuv[style_number - 1]  # Adjust indexing to match your list
+
+    min_length = max(len(text), len(fon))
+    m_name = text.lower()
+
+    # Apply the selected style
+    # Note: Ensure your implementation for applying styles
+    stylized_name = add_stylized_effects(m_name)
+
+    # Add random emojis
+    random_emoji = random.choice(emojilar)
+    my_name_with_emoji = f"{random_emoji} {stylized_name} {random_emoji}"
+
+    result.append(my_name_with_emoji)
+    return result
 
 
+print(nick_uzun("Boborahim", 5))

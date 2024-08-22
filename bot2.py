@@ -15,9 +15,9 @@ from filterss.check_sub_channel import IsCheckSubChannels
 from keyboard_buttons import admin_keyboard
 from states.reklama import Adverts
 from paginations import pagination
+from nick_generator import nick_generator,long_nick,yozuv
 from menucommands.set_bot_commands import set_default_commands
 from baza.sqlite import Database
-from nick_generator import nick_generator
 import time
 
 # Config fayldan ADMINS, TOKEN va CHANNELS o'zgaruvchilarini olish
@@ -104,8 +104,7 @@ async def send_advert(message: Message, state: FSMContext):
     await state.clear()
 
 @dp.message(F.text == "♻️ Orqaga")
-async def orqaga(message:Message,state:FSMContext):
-    await  state.clear()
+async def orqaga(message:Message):
     await message.answer("ninyulardan birini tanlang",reply_markup=admin_keyboard.start_button)
 
 from aiogram.fsm.state import StatesGroup, State
@@ -114,26 +113,99 @@ from aiogram import types
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+# # # Qisqa nik generatsiya qilish uchun handler
+# @dp.message(F.text == "✍️ Qisqa nick")
+# async def short_nick_handler(message: types.Message):
+#     await message.answer("Ism kiriting:")
 
+# # Qisqa niklar generatsiya qilishni boshlash
+# @dp.message(lambda m: m.text and not m.text.startswith("✍️") and not m.text.isdigit())
+# async def generate_short_nicks(message: types.Message):
+#     name = message.text.lower()
+#     nicknames = nick_generator(name=name)
+
+#     # Pagination
+#     page_size = 10
+#     page_num = 0
+#     total_pages = (len(nicknames) + page_size - 1) // page_size
+
+#     paginated_nicknames = nicknames[page_num * page_size:(page_num + 1) * page_size]
+#     text = "✨ Natija : \n\n"
+#     for idx, nick in enumerate(paginated_nicknames, start=page_num * page_size + 1):
+#         text += f"{idx}. <code>{nick}</code>\n\n"
+
+#     markup = InlineKeyboardBuilder()
+#     if page_num > 0:
+#         markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}_{name}"))
+#     if page_num < total_pages - 1:
+#         markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}_{name}"))
+
+#     await message.answer(text, reply_markup=markup.as_markup())
+
+# # Callback handler for pagination
+# @dp.callback_query(lambda c: c.data.startswith("short_page_"))
+# async def handle_short_page(callback_query: types.CallbackQuery):
+#     data = callback_query.data.split("_")
+#     page_num = int(data[2])
+#     name = data[3]  # Extract the name from the callback data
+
+#     # Get all nicknames again
+#     nicknames = nick_generator(name=name)
+
+#     # Pagination logic
+#     page_size = 10
+#     total_pages = (len(nicknames) + page_size - 1) // page_size
+#     paginated_nicknames = nicknames[page_num * page_size:(page_num + 1) * page_size]
+
+#     text = "✨ Natija : \n\n"
+#     for idx, nick in enumerate(paginated_nicknames, start=page_num * page_size + 1):
+#         text += f"{idx}. <code>{nick}</code>\n\n"
+
+#     markup = InlineKeyboardBuilder()
+#     if page_num > 0:
+#         markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}_{name}"))
+#     if page_num < total_pages - 1:
+#         markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}_{name}"))
+
+#     await callback_query.message.edit_text(text, reply_markup=markup.as_markup())
+#     await callback_query.answer()
 
 # # Uzun nik yaratish uchun davlatlar
 
 
-# Define state classes
+
 class LongNickStates(StatesGroup):
     waiting_for_text = State()
     waiting_for_number = State()
 
-# Define keyboard
+# Define the nick_generator function
+def nick_generatori(name: str) -> str:
+    # Dummy implementation for generating a nickname
+    return name.upper()  # Adjust according to your actual logic
+
+# Define the apply_style function
+def apply_style(nickname: str, style_number: int) -> str:
+    # Simple placeholder implementation for applying styles
+    styles = [
+        lambda s: s,  # No style
+        lambda s: s[::-1],  # Reverse
+        lambda s: s.upper(),  # Uppercase
+        lambda s: s.lower(),  # Lowercase
+        # Add more styles as needed
+    ]
+    if 1 <= style_number <= len(styles):
+        return styles[style_number - 1](nickname)
+    return nickname
 
 
-
+# Uzun nik yaratish uchun handler
 @dp.message(F.text == "✍️ Uzun nick")
 async def long_nick_handler(message: Message, state: FSMContext):
     await message.delete()
-    await message.answer("Matn kiriting:", reply_markup=admin_keyboard.orqaga_button)
+    await message.answer("Ism kiriting:",reply_markup=admin_keyboard.orqaga_button)
     await state.set_state(LongNickStates.waiting_for_text)
 
+# Uzun nik uchun textni qabul qilish
 @dp.message(LongNickStates.waiting_for_text)
 async def generate_long_nicks_text(message: Message, state: FSMContext):
     await state.update_data(text=message.text)
@@ -146,40 +218,39 @@ async def generate_long_nicks(message: Message, state: FSMContext):
     text = user_data['text']
     try:
         style_number = int(message.text)
-        if 1 <= style_number <= 33:  # Ensure the number is within the valid range
-            response = nick_generator(text,style_number)
-            await message.answer(f"🪄 Natija: <code>{response}</code>")
+        if 1 <= style_number <= len(yozuv):
+            nicknames = long_nick(text=text)
+            styled_nickname = nicknames[style_number - 1]  # Select the nickname based on style_number
+            await message.answer(f"✨ Natija: <code>{styled_nickname}</code>")
         else:
-            await message.answer("Raqam 1 dan 33 gacha bo'lishi kerak.")
+            await message.answer("Iltimos, 1 dan {} gacha bo'lgan raqamni kiriting.".format(len(yozuv)))
     except ValueError:
-        await message.answer("Iltimos, raqamni to'g'ri kiriting.")
+        await message.answer("Iltimos, faqat raqam kiriting.")
+    finally:
         await state.clear()
 
 
+
+
+# Qo'llanma bo'limi uchun handler
 @dp.message(F.text == "📙Qo'llanma")
-async def guide_handler(message: Message, state: FSMContext):
-    text = """
-    Botdan foydalanish uchun qo'llanma:
-    1️⃣ Qisqa nik yaratish uchun '✍️ Qisqa nick' tugmasini bosing va ismingizni kiriting.
-    2️⃣ Uzun nik yaratish uchun '✍️ Uzun nick' tugmasini bosing, matn kiriting, va 1 - dan 33 gacha raqam kiriting.
-    3️⃣ Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
-    4️⃣ Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
-    """
-    await message.answer(text=text, reply_markup=admin_keyboard.orqaga_button)
+async def guide_handler(message: Message):
+    await message.answer(text =
+        "Botdan foydalanish uchun qo'llanma:\n"
+        "1️⃣ Qisqa nik yaratish uchun '✍️ Qisqa nick' tugmasini bosing va ismingizni kiriting.\n"
+        "2️⃣ Uzun nik yaratish uchun '✍️ Uzun nick' tugmasini bosing, matn kiriting, va 1 - dan 33 gacha raqam kiriting.\n"
+        "3️⃣ Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.\n"
+        "4️⃣ Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring."
+    )
 
-
-
-# Admin xabar yuborish holatini qo'shish uchun yangi state
-class AdminStates(StatesGroup):
-    waiting_for_admin_message = State()
-
+# Admin bo'limi uchun handler
 @dp.message(F.text == "👨‍💼Admin")
-async def admin_message(message: Message, state: FSMContext):
-    await message.answer("Admin uchun xabar yuboring:", reply_markup=admin_keyboard.orqaga_button)
-    await state.set_state(AdminStates.waiting_for_admin_message)
+async def admin_message(message: Message):
+    await message.answer("Admin uchun xabar yuboring:")
 
-@dp.message(AdminStates.waiting_for_admin_message)
-async def handle_admin_message(message: Message, state: FSMContext):
+# Admin message handler
+@dp.message(lambda m: m.from_user.id not in ADMINS)
+async def handle_admin_message(message: Message):
     for admin in ADMINS:
         try:
             await bot.send_message(chat_id=int(admin), text=f"{message.from_user.full_name} dan xabar:\n{message.text}")
@@ -187,83 +258,6 @@ async def handle_admin_message(message: Message, state: FSMContext):
         except Exception as e:
             logging.exception(e)
             await message.answer("Xabar yuborishda xatolik yuz berdi.")
-    await state.clear()  # State-ni tozalash
-
-
-class ShortNickStates(StatesGroup):
-    waiting_for_name = State()
-
-# Short nick command handler
-@dp.message(F.text == "✍️ Qisqa nick")
-async def short_nick_handler(message: types.Message, state: FSMContext):
-    await state.set_state(ShortNickStates.waiting_for_name)
-    await message.answer("Ism kiriting:", reply_markup=admin_keyboard.orqaga_button)
-
-# Generate short nicks only if in the correct state
-@dp.message(ShortNickStates.waiting_for_name)
-async def generate_short_nicks(message: types.Message, state: FSMContext):
-    name = message.text.lower()
-    nicknames = nick_generator(name=name)
-
-    # Pagination
-    page_size = 10
-    page_num = 0
-    total_pages = (len(nicknames) + page_size - 1) // page_size
-
-    paginated_nicknames = nicknames[page_num * page_size:(page_num + 1) * page_size]
-    text = "✨ Natija : \n\n"
-    for idx, nick in enumerate(paginated_nicknames, start=page_num * page_size + 1):
-        text += f"{idx}. <code>{nick}</code>\n\n"
-
-    markup = InlineKeyboardBuilder()
-    if page_num > 0:
-        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}_{name}"))
-    if page_num < total_pages - 1:
-        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}_{name}"))
-
-    await message.answer(text, reply_markup=markup.as_markup())
-    await state.clear()  # Clear the state after generating nicknames
-
-# Ensure other text doesn't trigger the nickname generation
-@dp.message(lambda m: not m.text.startswith("✍️"))
-async def handle_other_text(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state:
-        # If the user is in a state, do nothing or provide feedback
-        await message.answer("Iltimos, tugmani tanlang yoki boshqa amalni bajaring.")
-    else:
-        # Otherwise, ignore or provide a default response
-        await message.answer("Botdan foydalanish uchun menyudan tanlovni bosing.",reply_markup=admin_keyboard.start_button)
-
-# Callback handler for pagination
-@dp.callback_query(lambda c: c.data.startswith("short_page_"))
-async def handle_short_page(callback_query: types.CallbackQuery, state: FSMContext):
-    data = callback_query.data.split("_")
-    page_num = int(data[2])
-    name = data[3]  # Extract the name from the callback data
-
-    # Get all nicknames again
-    nicknames = nick_generator(name=name)
-
-    # Pagination logic
-    page_size = 10
-    total_pages = (len(nicknames) + page_size - 1) // page_size
-    paginated_nicknames = nicknames[page_num * page_size:(page_num + 1) * page_size]
-
-    text = "✨ Natija : \n\n"
-    for idx, nick in enumerate(paginated_nicknames, start=page_num * page_size + 1):
-        text += f"{idx}. <code>{nick}</code>\n\n"
-
-    markup = InlineKeyboardBuilder()
-    if page_num > 0:
-        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}_{name}"))
-    if page_num < total_pages - 1:
-        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}_{name}"))
-
-    await callback_query.message.edit_text(text, reply_markup=markup.as_markup())
-    await callback_query.answer()
-    await state.clear()
-
 
 # Bot ishga tushganligini adminlarga xabar beruvchi funksiya
 @dp.startup()
