@@ -56,7 +56,7 @@ def add_stylized_effects(text):
 
 
 
-
+# def nick_generator(name, son=None):
 def nick_generator(name,son=None):
     result = []
     if son:
@@ -64,10 +64,13 @@ def nick_generator(name,son=None):
         min_length = max(len(text), len(fon))
         my_name = name.lower()
         for i in range(min_length):
+          if i < len(name) and i < len(fon):  # Indeksdan tashqarida chiqish oldini olish
+
             my_name = my_name.replace(text[i], fon[i])
             
             
         return my_name
+    
     else:
         for fon in yozuv:
             min_length = min(len(text), len(fon))
@@ -82,8 +85,4 @@ def nick_generator(name,son=None):
             
             result.append(my_name_with_emoji)
         return result
-
-
-
-
 

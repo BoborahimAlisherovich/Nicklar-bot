@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram import F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.client.bot import Bot, DefaultBotProperties
 from aiogram.fsm.context import FSMContext
@@ -19,6 +19,9 @@ from menucommands.set_bot_commands import set_default_commands
 from baza.sqlite import Database
 from nick_generator import nick_generator
 import time
+from aiogram.fsm.state import StatesGroup, State
+from aiogram import types
+
 
 # Config fayldan ADMINS, TOKEN va CHANNELS o'zgaruvchilarini olish
 ADMINS = config.ADMINS
@@ -108,11 +111,6 @@ async def orqaga(message:Message,state:FSMContext):
     await  state.clear()
     await message.answer("ninyulardan birini tanlang",reply_markup=admin_keyboard.start_button)
 
-from aiogram.fsm.state import StatesGroup, State
-
-from aiogram import types
-from aiogram.types import InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 
@@ -125,7 +123,6 @@ class LongNickStates(StatesGroup):
     waiting_for_number = State()
 
 # Define keyboard
-
 
 
 @dp.message(F.text == "✍️ Uzun nick")
