@@ -261,22 +261,43 @@ async def process_reply_callback(callback_query: CallbackQuery, state: FSMContex
     await state.update_data(reply_user_id=user_id)
     await state.set_state(AdminStates.waiting_for_reply_message)
     await callback_query.answer()
-
+from aiogram.types import ContentType
 # Handle admin reply and send it back to the user
-@dp.message(AdminStates.waiting_for_reply_message, F.content_type == ContentType.TEXT)
+@dp.message(AdminStates.waiting_for_reply_message)
 async def handle_admin_reply(message: Message, state: FSMContext):
     data = await state.get_data()
     original_user_id = data.get('reply_user_id')
 
     if original_user_id:
         try:
-            await bot.send_message(original_user_id, f"Admin javobi:\n{message.text}",reply_markup=admin_keyboard.start_button)
+            # Send the admin's text reply to the user
+            if message.text:
+                await bot.send_message(original_user_id, f"Admin javobi:\n{message.text}", reply_markup=admin_keyboard.start_button)
+            
+            # Send the admin's voice message to the user
+            if message.voice:
+                await bot.send_voice(original_user_id, message.voice.file_id, reply_markup=admin_keyboard.start_button)
+            
+            # Send the admin's audio message to the user
+            if message.audio:
+                await bot.send_audio(original_user_id, message.audio.file_id, reply_markup=admin_keyboard.start_button)
+            
+            # Send the admin's sticker to the user
+            if message.sticker:
+                await bot.send_sticker(original_user_id, message.sticker.file_id, reply_markup=admin_keyboard.start_button)
+            
+            # Send the admin's video to the user
+            if message.video:
+                await bot.send_video(original_user_id, message.video.file_id, reply_markup=admin_keyboard.start_button)
+
             await state.clear()  # Clear state after sending the reply
         except Exception as e:
             logger.error(f"Error sending reply to user {original_user_id}: {e}")
             await message.reply("Xatolik: Javob yuborishda xato yuz berdi.")
     else:
         await message.reply("Xatolik: Javob yuborish uchun foydalanuvchi ID topilmadi.")
+
+
 
 
 class ShortNickStates(StatesGroup):
