@@ -14,14 +14,15 @@ from filterss.admin import IsBotAdminFilter
 from filterss.check_sub_channel import IsCheckSubChannels
 from keyboard_buttons import admin_keyboard
 from states.reklama import Adverts
-from paginations import pagination
 from menucommands.set_bot_commands import set_default_commands
 from baza.sqlite import Database
 from nick_generator import nick_generator
 import time
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types
-
+import logging
+from aiogram.types import CallbackQuery, ContentType
+from aiogram.fsm.context import FSMContext
 
 # Config fayldan ADMINS, TOKEN va CHANNELS o'zgaruvchilarini olish
 ADMINS = config.ADMINS
@@ -110,49 +111,9 @@ async def send_advert(message: Message, state: FSMContext):
 async def orqaga(message:Message,state:FSMContext):
     await  state.clear()
     await message.answer("ninyulardan birini tanlang",reply_markup=admin_keyboard.start_button)
-
-
-
-
-# # Uzun nik yaratish uchun davlatlar
-
-
 # Define state classes
-class LongNickStates(StatesGroup):
-    waiting_for_text = State()
-    waiting_for_number = State()
 
-# Define keyboard
-
-
-@dp.message(F.text == "✍️ Uzun nick")
-async def long_nick_handler(message: Message, state: FSMContext):
-    await message.delete()
-    await message.answer("Matn kiriting:", reply_markup=admin_keyboard.orqaga_button)
-    await state.set_state(LongNickStates.waiting_for_text)
-
-@dp.message(LongNickStates.waiting_for_text)
-async def generate_long_nicks_text(message: Message, state: FSMContext):
-    await state.update_data(text=message.text)
-    await message.answer("Raqam kiriting (1-33):")
-    await state.set_state(LongNickStates.waiting_for_number)
-
-@dp.message(LongNickStates.waiting_for_number)
-async def generate_long_nicks(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    text = user_data['text']
-    try:
-        style_number = int(message.text)
-        if 1 <= style_number <= 33:  # Ensure the number is within the valid range
-            response = nick_generator(text,style_number)
-            await message.answer(f"🪄 Natija: <code>{response}</code>")
-        else:
-            await message.answer("Raqam 1 dan 33 gacha bo'lishi kerak.")
-    except ValueError:
-        await message.answer("Iltimos, raqamni to'g'ri kiriting.")
-        await state.clear()
-
-
+#Qo'llanma
 @dp.message(F.text == "📙Qo'llanma")
 async def guide_handler(message: Message, state: FSMContext):
     text = """
@@ -165,31 +126,163 @@ async def guide_handler(message: Message, state: FSMContext):
     await message.answer(text=text, reply_markup=admin_keyboard.orqaga_button)
 
 
-
-# Admin xabar yuborish holatini qo'shish uchun yangi state
 class AdminStates(StatesGroup):
     waiting_for_admin_message = State()
+    waiting_for_reply_message = State()
 
+
+# Initialize logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Define admin states
+class AdminStates(StatesGroup):
+    waiting_for_admin_message = State()
+    waiting_for_reply_message = State()
+
+# Function to create inline keyboard for reply
+def create_inline_keyboard(user_id):
+    keyboard_builder = InlineKeyboardBuilder()
+    keyboard_builder.button(
+        text="Javob berish",
+        callback_data=f"reply:{user_id}"
+    )
+
+
+    return keyboard_builder.as_markup()
+# Admin message handler
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
-    await message.answer("Admin uchun xabar yuboring:", reply_markup=admin_keyboard.orqaga_button)
+    await message.answer("Admin uchun xabar yuboring:",reply_markup=admin_keyboard.orqaga_button)
     await state.set_state(AdminStates.waiting_for_admin_message)
 
-@dp.message(AdminStates.waiting_for_admin_message)
-async def handle_admin_message(message: Message, state: FSMContext):
-    for admin in ADMINS:
+@dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
+    ContentType.TEXT, ContentType.AUDIO, ContentType.VOICE, ContentType.VIDEO,
+    ContentType.PHOTO, ContentType.ANIMATION, ContentType.STICKER, 
+    ContentType.LOCATION, ContentType.DOCUMENT, ContentType.CONTACT
+]))
+async def handle_admin_message(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    username = message.from_user.username
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name or ""  # Some users may not have a last name
+
+    # Use username if available, otherwise use first name + last name
+    if username:
+        user_identifier = f"@{username}"
+    else:
+        user_identifier = f"{first_name} {last_name}".strip()  # Remove any extra spaces
+
+    inline_keyboard = create_inline_keyboard(user_id)
+
+    for admin_id in ADMINS:
         try:
-            await bot.send_message(chat_id=int(admin), text=f"{message.from_user.full_name} dan xabar:\n{message.text}")
-            await message.answer("Xabaringiz yuborildi!")
+            if message.text:
+                await bot.send_message(
+                    admin_id,
+                    f"Foydalanuvchi: {user_identifier}\nXabar:\n{message.text}",
+                    reply_markup=inline_keyboard
+                )
+            elif message.audio:
+                await bot.send_audio(
+                    admin_id,
+                    message.audio.file_id,
+                    caption=f"Foydalanuvchi: {user_identifier}\nAudio xabar",
+                    reply_markup=inline_keyboard
+                )
+            elif message.voice:
+                await bot.send_voice(
+                    admin_id,
+                    message.voice.file_id,
+                    caption=f"Foydalanuvchi: {user_identifier}\nVoice xabar",
+                    reply_markup=inline_keyboard
+                )
+            elif message.video:
+                await bot.send_video(
+                    admin_id,
+                    message.video.file_id,
+                    caption=f"Foydalanuvchi: {user_identifier}\nVideo xabar",
+                    reply_markup=inline_keyboard
+                )
+            elif message.photo:
+                await bot.send_photo(
+                    admin_id,
+                    message.photo[-1].file_id,  # using the highest resolution photo
+                    caption=f"Foydalanuvchi: {user_identifier}\nRasm xabar",
+                    reply_markup=inline_keyboard
+                )
+            elif message.animation:
+                await bot.send_animation(
+                    admin_id,
+                    message.animation.file_id,
+                    caption=f"Foydalanuvchi: {user_identifier}\nGIF xabar",
+                    reply_markup=inline_keyboard
+                )
+            elif message.sticker:
+                await bot.send_sticker(
+                    admin_id,
+                    message.sticker.file_id,
+                    reply_markup=inline_keyboard
+                )
+            elif message.location:
+                await bot.send_location(
+                    admin_id,
+                    latitude=message.location.latitude,
+                    longitude=message.location.longitude,
+                    reply_markup=inline_keyboard
+                )
+            elif message.document:
+                await bot.send_document(
+                    admin_id,
+                    message.document.file_id,
+                    caption=f"Foydalanuvchi: {user_identifier}\nHujjat xabar",
+                    reply_markup=inline_keyboard
+                )
+            elif message.contact:
+                await bot.send_contact(
+                    admin_id,
+                    phone_number=message.contact.phone_number,
+                    first_name=message.contact.first_name,
+                    last_name=message.contact.last_name or "",
+                    reply_markup=inline_keyboard
+                )
         except Exception as e:
-            logging.exception(e)
-            await message.answer("Xabar yuborishda xatolik yuz berdi.")
-    await state.clear()  # State-ni tozalash
+            logging.error(f"Error sending message to admin {admin_id}: {e}")
+
+    await state.clear()
+    await bot.send_message(user_id, "Admin sizga javob berishi mumkin.",reply_markup=admin_keyboard.start_button)
+
+
+# Callback query handler for the reply button
+@dp.callback_query(lambda c: c.data.startswith('reply:'))
+async def process_reply_callback(callback_query: CallbackQuery, state: FSMContext):
+    user_id = int(callback_query.data.split(":")[1])
+    await callback_query.message.answer("Javobingizni yozing. Sizning javobingiz foydalanuvchiga yuboriladi.")
+    await state.update_data(reply_user_id=user_id)
+    await state.set_state(AdminStates.waiting_for_reply_message)
+    await callback_query.answer()
+
+# Handle admin reply and send it back to the user
+@dp.message(AdminStates.waiting_for_reply_message, F.content_type == ContentType.TEXT)
+async def handle_admin_reply(message: Message, state: FSMContext):
+    data = await state.get_data()
+    original_user_id = data.get('reply_user_id')
+
+    if original_user_id:
+        try:
+            await bot.send_message(original_user_id, f"Admin javobi:\n{message.text}",reply_markup=admin_keyboard.start_button)
+            await state.clear()  # Clear state after sending the reply
+        except Exception as e:
+            logger.error(f"Error sending reply to user {original_user_id}: {e}")
+            await message.reply("Xatolik: Javob yuborishda xato yuz berdi.")
+    else:
+        await message.reply("Xatolik: Javob yuborish uchun foydalanuvchi ID topilmadi.")
 
 
 class ShortNickStates(StatesGroup):
     waiting_for_name = State()
 
+# Short nick command handler
 # Short nick command handler
 @dp.message(F.text == "✍️ Qisqa nick")
 async def short_nick_handler(message: types.Message, state: FSMContext):
@@ -200,6 +293,7 @@ async def short_nick_handler(message: types.Message, state: FSMContext):
 @dp.message(ShortNickStates.waiting_for_name)
 async def generate_short_nicks(message: types.Message, state: FSMContext):
     name = message.text.lower()
+    await state.update_data(name=name)  # Save the name in state for pagination
     nicknames = nick_generator(name=name)
 
     # Pagination
@@ -214,30 +308,23 @@ async def generate_short_nicks(message: types.Message, state: FSMContext):
 
     markup = InlineKeyboardBuilder()
     if page_num > 0:
-        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}_{name}"))
+        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}"))
     if page_num < total_pages - 1:
-        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}_{name}"))
+        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}"))
 
     await message.answer(text, reply_markup=markup.as_markup())
-    await state.clear()  # Clear the state after generating nicknames
+    # Do not clear the state here to allow for pagination
 
-# Ensure other text doesn't trigger the nickname generation
-@dp.message(lambda m: not m.text.startswith("✍️"))
-async def handle_other_text(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state:
-        # If the user is in a state, do nothing or provide feedback
-        await message.answer("Iltimos, tugmani tanlang yoki boshqa amalni bajaring.")
-    else:
-        # Otherwise, ignore or provide a default response
-        await message.answer("Botdan foydalanish uchun menyudan tanlovni bosing.",reply_markup=admin_keyboard.start_button)
 
 # Callback handler for pagination
 @dp.callback_query(lambda c: c.data.startswith("short_page_"))
 async def handle_short_page(callback_query: types.CallbackQuery, state: FSMContext):
     data = callback_query.data.split("_")
     page_num = int(data[2])
-    name = data[3]  # Extract the name from the callback data
+
+    # Retrieve the name from the state
+    user_data = await state.get_data()
+    name = user_data.get('name')
 
     # Get all nicknames again
     nicknames = nick_generator(name=name)
@@ -253,13 +340,68 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
 
     markup = InlineKeyboardBuilder()
     if page_num > 0:
-        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}_{name}"))
+        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}"))
     if page_num < total_pages - 1:
-        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}_{name}"))
+        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}"))
 
     await callback_query.message.edit_text(text, reply_markup=markup.as_markup())
     await callback_query.answer()
-    await state.clear()
+    # Do not clear the state here either, to maintain pagination continuity
+
+    
+
+
+class LongNickStates(StatesGroup):
+    waiting_for_text = State()
+    waiting_for_number = State()
+
+@dp.message(F.text == "✍️ Uzun nick")
+async def long_nick_handler(message: Message, state: FSMContext):
+    await message.answer("Matn kiriting: \nYodingizda bo'lsin, kiritilgan matn bir xil harflardan iborat bo'lmasligi kerak❗️", reply_markup=admin_keyboard.orqaga_button)
+    await state.set_state(LongNickStates.waiting_for_text)
+
+@dp.message(LongNickStates.waiting_for_text)
+async def generate_long_nicks_text(message: Message, state: FSMContext):
+    text = message.text.strip()
+    if not text:  # Empty input check
+        await message.answer("Iltimos, matn kiriting.")
+        return
+
+    await state.update_data(text=text)
+    await message.answer("1 va 54 orasida istalgan raqam kiriting")
+    await state.set_state(LongNickStates.waiting_for_number)
+
+@dp.message(LongNickStates.waiting_for_number)
+async def generate_long_nicks(message: Message, state: FSMContext):
+    user_data = await state.get_data()
+    text = user_data.get('text', '')
+    if not text:
+        await message.answer("Iltimos, matn kiriting.")
+        await state.set_state(LongNickStates.waiting_for_text)
+        return
+
+    try:
+        style_number = int(message.text)
+        if 1 <= style_number <= 54:  # Ensure the number is within the valid range
+            response = nick_generator(text, style_number)
+            await message.answer(f"🪄 Natija: <code>{response}</code>")
+        else:
+            await message.answer("Raqam 1 dan 54 gacha bo'lishi kerak. Iltimos, raqamni qayta kiriting:")
+    except ValueError:
+        await message.answer("Iltimos, raqamni to'g'ri kiriting.")
+
+@dp.message(lambda m: not m.text.startswith("✍️"))
+async def handle_other_text(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state:
+        # If the user is in a state, do nothing or provide feedback
+        await message.answer("Iltimos, tugmani tanlang yoki boshqa amalni bajaring.")
+        await state.clear()
+
+    else:
+        # Otherwise, ignore or provide a default response
+        await message.answer("Botdan foydalanish uchun menyudan tanlovni bosing.",reply_markup=admin_keyboard.start_button)
+        await state.clear()
 
 
 # Bot ishga tushganligini adminlarga xabar beruvchi funksiya
@@ -296,7 +438,11 @@ async def main() -> None:
     setup_middlewares(dispatcher=dp, bot=bot)
     await dp.start_polling(bot)
 
+    await bot.delete_webhook(drop_pending_updates=True)
 # Agar skript to'g'ridan-to'g'ri ishga tushirilsa
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())
+    
+
