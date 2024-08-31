@@ -159,8 +159,10 @@ async def admin_message(message: Message, state: FSMContext):
 @dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
     ContentType.TEXT, ContentType.AUDIO, ContentType.VOICE, ContentType.VIDEO,
     ContentType.PHOTO, ContentType.ANIMATION, ContentType.STICKER, 
-    ContentType.LOCATION, ContentType.DOCUMENT, ContentType.CONTACT
+    ContentType.LOCATION, ContentType.DOCUMENT, ContentType.CONTACT,
+    ContentType.VIDEO_NOTE
 ]))
+
 async def handle_admin_message(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     username = message.from_user.username
@@ -173,11 +175,19 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
     else:
         user_identifier = f"{first_name} {last_name}".strip()  # Remove any extra spaces
 
+    video_note = message.video_note
     inline_keyboard = create_inline_keyboard(user_id)
-
     for admin_id in ADMINS:
         try:
-            if message.text:
+            if video_note:
+                print('adfs', message.video_note.file_id)
+                # Echo the video note back to the user
+                await bot.send_video_note(
+                    admin_id,
+                    video_note.file_id,
+                    reply_markup=inline_keyboard
+                )
+            elif message.text:
                 await bot.send_message(
                     admin_id,
                     f"Foydalanuvchi: {user_identifier}\nXabar:\n{message.text}",
@@ -250,8 +260,7 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
             logging.error(f"Error sending message to admin {admin_id}: {e}")
 
     await state.clear()
-    await bot.send_message(user_id, "Admin sizga javob berishi mumkin.",reply_markup=admin_keyboard.start_button)
-
+    await bot.send_message(user_id, "Admin sizga javob berishi mumkin.", reply_markup=admin_keyboard.start_button)
 
 # Callback query handler for the reply button
 @dp.callback_query(lambda c: c.data.startswith('reply:'))
@@ -261,7 +270,7 @@ async def process_reply_callback(callback_query: CallbackQuery, state: FSMContex
     await state.update_data(reply_user_id=user_id)
     await state.set_state(AdminStates.waiting_for_reply_message)
     await callback_query.answer()
-from aiogram.types import ContentType
+
 # Handle admin reply and send it back to the user
 @dp.message(AdminStates.waiting_for_reply_message)
 async def handle_admin_reply(message: Message, state: FSMContext):
@@ -270,24 +279,22 @@ async def handle_admin_reply(message: Message, state: FSMContext):
 
     if original_user_id:
         try:
-            # Send the admin's text reply to the user
             if message.text:
                 await bot.send_message(original_user_id, f"Admin javobi:\n{message.text}", reply_markup=admin_keyboard.start_button)
             
-            # Send the admin's voice message to the user
-            if message.voice:
+            elif message.voice:
                 await bot.send_voice(original_user_id, message.voice.file_id, reply_markup=admin_keyboard.start_button)
-            
-            # Send the admin's audio message to the user
-            if message.audio:
+
+            elif message.video_note:
+                await bot.send_video_note(original_user_id, message.video_note.file_id, reply_markup=admin_keyboard.start_button)
+
+            elif message.audio:
                 await bot.send_audio(original_user_id, message.audio.file_id, reply_markup=admin_keyboard.start_button)
             
-            # Send the admin's sticker to the user
-            if message.sticker:
+            elif message.sticker:
                 await bot.send_sticker(original_user_id, message.sticker.file_id, reply_markup=admin_keyboard.start_button)
             
-            # Send the admin's video to the user
-            if message.video:
+            elif message.video:
                 await bot.send_video(original_user_id, message.video.file_id, reply_markup=admin_keyboard.start_button)
 
             await state.clear()  # Clear state after sending the reply
@@ -296,9 +303,6 @@ async def handle_admin_reply(message: Message, state: FSMContext):
             await message.reply("Xatolik: Javob yuborishda xato yuz berdi.")
     else:
         await message.reply("Xatolik: Javob yuborish uchun foydalanuvchi ID topilmadi.")
-
-
-
 
 class ShortNickStates(StatesGroup):
     waiting_for_name = State()
@@ -369,8 +373,6 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     # Do not clear the state here either, to maintain pagination continuity
 
-    
-
 
 class LongNickStates(StatesGroup):
     waiting_for_text = State()
@@ -411,7 +413,7 @@ async def generate_long_nicks(message: Message, state: FSMContext):
     except ValueError:
         await message.answer("Iltimos, raqamni to'g'ri kiriting.")
 
-@dp.message(lambda m: not m.text.startswith("✍️"))
+@dp.message(F.text.startswith("✍️"))
 async def handle_other_text(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state:
