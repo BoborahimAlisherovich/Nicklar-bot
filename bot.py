@@ -18,7 +18,7 @@ from menucommands.set_bot_commands import set_default_commands
 from baza.sqlite import Database
 from nick_generator import nick_generator
 import time
-from aiogram.fsm.state import StatesGroup, State
+from states.bulimlar import AdminStates,ShortNickStates,LongNickStates
 from aiogram import types
 import logging
 from aiogram.types import CallbackQuery, ContentType
@@ -126,19 +126,9 @@ async def guide_handler(message: Message, state: FSMContext):
     await message.answer(text=text, reply_markup=admin_keyboard.orqaga_button)
 
 
-class AdminStates(StatesGroup):
-    waiting_for_admin_message = State()
-    waiting_for_reply_message = State()
-
-
 # Initialize logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Define admin states
-class AdminStates(StatesGroup):
-    waiting_for_admin_message = State()
-    waiting_for_reply_message = State()
 
 # Function to create inline keyboard for reply
 def create_inline_keyboard(user_id):
@@ -147,7 +137,6 @@ def create_inline_keyboard(user_id):
         text="Javob berish",
         callback_data=f"reply:{user_id}"
     )
-
 
     return keyboard_builder.as_markup()
 # Admin message handler
@@ -304,10 +293,7 @@ async def handle_admin_reply(message: Message, state: FSMContext):
     else:
         await message.reply("Xatolik: Javob yuborish uchun foydalanuvchi ID topilmadi.")
 
-class ShortNickStates(StatesGroup):
-    waiting_for_name = State()
 
-# Short nick command handler
 # Short nick command handler
 @dp.message(F.text == "✍️ Qisqa nick")
 async def short_nick_handler(message: types.Message, state: FSMContext):
@@ -373,10 +359,6 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     # Do not clear the state here either, to maintain pagination continuity
 
-
-class LongNickStates(StatesGroup):
-    waiting_for_text = State()
-    waiting_for_number = State()
 
 @dp.message(F.text == "✍️ Uzun nick")
 async def long_nick_handler(message: Message, state: FSMContext):
