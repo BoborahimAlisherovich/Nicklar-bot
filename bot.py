@@ -21,6 +21,7 @@ import time
 from states.bulimlar import AdminStates,ShortNickStates,LongNickStates
 from aiogram import types
 import logging
+from funksiyalar.funksiya import create_inline_keyboard
 from aiogram.types import CallbackQuery, ContentType
 from aiogram.fsm.context import FSMContext
 
@@ -130,15 +131,6 @@ async def guide_handler(message: Message, state: FSMContext):
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Function to create inline keyboard for reply
-def create_inline_keyboard(user_id):
-    keyboard_builder = InlineKeyboardBuilder()
-    keyboard_builder.button(
-        text="Javob berish",
-        callback_data=f"reply:{user_id}"
-    )
-
-    return keyboard_builder.as_markup()
 # Admin message handler
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
