@@ -351,7 +351,6 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     # Do not clear the state here either, to maintain pagination continuity
 
-
 @dp.message(F.text == "✍️ Uzun nick")
 async def long_nick_handler(message: Message, state: FSMContext):
     await message.answer("Matn kiriting: \nYodingizda bo'lsin, kiritilgan matn bir xil harflardan iborat bo'lmasligi kerak❗️", reply_markup=admin_keyboard.orqaga_button)
@@ -360,7 +359,14 @@ async def long_nick_handler(message: Message, state: FSMContext):
 @dp.message(LongNickStates.waiting_for_text)
 async def generate_long_nicks_text(message: Message, state: FSMContext):
     text = message.text.strip()
-    if not text:  # Empty input check
+
+    # Check if the input is a single word
+    if len(text.split()) == 1:
+        await message.answer("Iltimos, matningiz bir nechta so'zlardan iborat bo'lsin.\nQisqa so'zlar uchun '✍️ Qisqa nick' bo'limiga o'ting.")
+        return
+
+    # Check if the text is empty
+    if not text:
         await message.answer("Iltimos, matn kiriting.")
         return
 
