@@ -18,10 +18,14 @@ start_button = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="✍️ Qisqa nick"),
-            KeyboardButton(text="✍️ Uzun nick"),
+    
         ],
          [
             KeyboardButton(text="📙Qo'llanma"),
+ 
+        ],
+          [
+         
             KeyboardButton(text="👨‍💼Admin"),
         ]
         

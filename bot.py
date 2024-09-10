@@ -349,49 +349,8 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
 
     await callback_query.message.edit_text(text, reply_markup=markup.as_markup())
     await callback_query.answer()
-    # Do not clear the state here either, to maintain pagination continuity
+    
 
-@dp.message(F.text == "✍️ Uzun nick")
-async def long_nick_handler(message: Message, state: FSMContext):
-    await message.answer("Matn kiriting: \nYodingizda bo'lsin, kiritilgan matn bir xil harflardan iborat bo'lmasligi kerak❗️", reply_markup=admin_keyboard.orqaga_button)
-    await state.set_state(LongNickStates.waiting_for_text)
-
-@dp.message(LongNickStates.waiting_for_text)
-async def generate_long_nicks_text(message: Message, state: FSMContext):
-    text = message.text.strip()
-
-    # Check if the input is a single word
-    if len(text.split()) == 1:
-        await message.answer("Iltimos, matningiz bir nechta so'zlardan iborat bo'lsin.\nQisqa so'zlar uchun '✍️ Qisqa nick' bo'limiga o'ting.")
-        return
-
-    # Check if the text is empty
-    if not text:
-        await message.answer("Iltimos, matn kiriting.")
-        return
-
-    await state.update_data(text=text)
-    await message.answer("1 va 54 orasida istalgan raqam kiriting")
-    await state.set_state(LongNickStates.waiting_for_number)
-
-@dp.message(LongNickStates.waiting_for_number)
-async def generate_long_nicks(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    text = user_data.get('text', '')
-    if not text:
-        await message.answer("Iltimos, matn kiriting.")
-        await state.set_state(LongNickStates.waiting_for_text)
-        return
-
-    try:
-        style_number = int(message.text)
-        if 1 <= style_number <= 54:  # Ensure the number is within the valid range
-            response = nick_generator(text, style_number)
-            await message.answer(f"🪄 Natija: <code>{response}</code>")
-        else:
-            await message.answer("Raqam 1 dan 54 gacha bo'lishi kerak. Iltimos, raqamni qayta kiriting:")
-    except ValueError:
-        await message.answer("Iltimos, raqamni to'g'ri kiriting.")
 
 @dp.message(F.text.startswith("✍️"))
 async def handle_other_text(message: types.Message, state: FSMContext):
