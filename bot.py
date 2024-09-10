@@ -119,10 +119,9 @@ async def orqaga(message:Message,state:FSMContext):
 async def guide_handler(message: Message, state: FSMContext):
     text = """
     Botdan foydalanish uchun qo'llanma:
-    1️⃣ Qisqa nik yaratish uchun '✍️ Qisqa nick' tugmasini bosing va ismingizni kiriting.
-    2️⃣ Uzun nik yaratish uchun '✍️ Uzun nick' tugmasini bosing, matn kiriting, va 1 - dan 33 gacha raqam kiriting.
-    3️⃣ Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
-    4️⃣ Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
+    1 Qisqa nik yaratish uchun '✍️ Qisqa nick' tugmasini bosing va ismingizni kiriting.
+    2 Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
+    3 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
     """
     await message.answer(text=text, reply_markup=admin_keyboard.orqaga_button)
 
