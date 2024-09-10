@@ -123,7 +123,7 @@ async def guide_handler(message: Message, state: FSMContext):
     2 Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
     3 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
     """
-    await message.answer(text=text, reply_markup=admin_keyboard.orqaga_button)
+    await message.answer(text=text)
 
 
 # Initialize logger
@@ -133,7 +133,7 @@ logger = logging.getLogger(__name__)
 # Admin message handler
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
-    await message.answer("Admin uchun xabar yuboring:",reply_markup=admin_keyboard.orqaga_button)
+    await message.answer("Admin uchun xabar yuboring:")
     await state.set_state(AdminStates.waiting_for_admin_message)
 
 @dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
@@ -289,7 +289,7 @@ async def handle_admin_reply(message: Message, state: FSMContext):
 @dp.message(F.text == "✍️ Qisqa nick")
 async def short_nick_handler(message: types.Message, state: FSMContext):
     await state.set_state(ShortNickStates.waiting_for_name)
-    await message.answer("Ism kiriting:", reply_markup=admin_keyboard.orqaga_button)
+    await message.answer("Ism kiriting:")
 
 # Generate short nicks only if in the correct state
 @dp.message(ShortNickStates.waiting_for_name)

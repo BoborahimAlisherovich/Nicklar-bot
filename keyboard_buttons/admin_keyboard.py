@@ -35,11 +35,3 @@ start_button = ReplyKeyboardMarkup(
 )
 
 
-orqaga_button = ReplyKeyboardMarkup(
-    keyboard=[
-        [
-            KeyboardButton(text="♻️ Orqaga"),        
-        ]      
-    ],
-  resize_keyboard=True
-)
