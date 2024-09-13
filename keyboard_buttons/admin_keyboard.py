@@ -16,10 +16,7 @@ admin_button = ReplyKeyboardMarkup(
 
 start_button = ReplyKeyboardMarkup(
     keyboard=[
-        [
-            KeyboardButton(text="✍️ Qisqa nick"),
     
-        ],
          [
             KeyboardButton(text="📙Qo'llanma"),
  
@@ -35,3 +32,11 @@ start_button = ReplyKeyboardMarkup(
 )
 
 
+orqaga_button = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="♻️ Orqaga"),        
+        ]      
+    ],
+  resize_keyboard=True
+)

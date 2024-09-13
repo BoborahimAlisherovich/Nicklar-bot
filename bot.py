@@ -39,17 +39,21 @@ db: Database
 
 # /start komandasi uchun handler
 @dp.message(CommandStart())
-async def start_command(message: Message):
+async def start_command(message: Message,state:FSMContext):
     full_name = message.from_user.full_name
     telegram_id = message.from_user.id
     try:
         db.add_user(full_name=full_name, telegram_id=telegram_id)
-        await message.answer(text=f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. Boshlashga tayyormisiz? 🚀",reply_markup=admin_keyboard.start_button)
+        await state.set_state(ShortNickStates.waiting_for_name)
+        await message.answer(text=f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. ",reply_markup=admin_keyboard.start_button)
+
+
 
     except:
-        await message.answer(text=f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. Boshlashga tayyormisiz? 🚀",reply_markup=admin_keyboard.start_button)
-       
+        await state.set_state(ShortNickStates.waiting_for_name)
+        await message.answer(f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. 🚀",reply_markup=admin_keyboard.start_button)
 
+                             
 # Kanalga obuna bo'lishni tekshiruvchi handler
 @dp.message(IsCheckSubChannels())
 async def kanalga_obuna(message: Message):
@@ -66,6 +70,7 @@ async def kanalga_obuna(message: Message):
 @dp.message(Command("help"))
 async def help_commands(message: Message):
     await message.answer("Yordam kerakmi? Biz sizga o'zingizga mos, noyob va original nik yaratishda yordam beramiz! 🔥 Istalgancha nik giniratsiya qiling, tanlang va boshqa hech kimga o'xshamaydigan uslubingizni yarating! 😎")
+  
 
 # /about komandasi uchun handler
 @dp.message(Command("about"))
@@ -114,12 +119,20 @@ async def orqaga(message:Message,state:FSMContext):
     await message.answer("ninyulardan birini tanlang",reply_markup=admin_keyboard.start_button)
 # Define state classes
 
+# Short nick command handler
+# @dp.message(F.text == "✍️ Qisqa nick")
+# async def short_nick_handler(message: types.Message, state: FSMContext):
+#     await state.set_state(ShortNickStates.waiting_for_name)
+#     await message.answer("Ism kiriting:", reply_markup=admin_keyboard.orqaga_button)
+
+
+
 #Qo'llanma
 @dp.message(F.text == "📙Qo'llanma")
 async def guide_handler(message: Message, state: FSMContext):
     text = """
     Botdan foydalanish uchun qo'llanma:
-    1 Qisqa nik yaratish uchun '✍️ Qisqa nick' tugmasini bosing va ismingizni kiriting.
+    1 Qisqa nik yaratish uchun ismingizni kiriting.
     2 Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
     3 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
     """
@@ -133,7 +146,7 @@ logger = logging.getLogger(__name__)
 # Admin message handler
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
-    await message.answer("Admin uchun xabar yuboring:")
+    await message.answer("Admin uchun xabar yuboring:",reply_markup=admin_keyboard.orqaga_button)
     await state.set_state(AdminStates.waiting_for_admin_message)
 
 @dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
@@ -285,11 +298,6 @@ async def handle_admin_reply(message: Message, state: FSMContext):
         await message.reply("Xatolik: Javob yuborish uchun foydalanuvchi ID topilmadi.")
 
 
-# Short nick command handler
-@dp.message(F.text == "✍️ Qisqa nick")
-async def short_nick_handler(message: types.Message, state: FSMContext):
-    await state.set_state(ShortNickStates.waiting_for_name)
-    await message.answer("Ism kiriting:")
 
 # Generate short nicks only if in the correct state
 @dp.message(ShortNickStates.waiting_for_name)
@@ -351,18 +359,19 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
     
 
 
-@dp.message(F.text.startswith("✍️"))
-async def handle_other_text(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state:
-        # If the user is in a state, do nothing or provide feedback
-        await message.answer("Iltimos, tugmani tanlang yoki boshqa amalni bajaring.")
-        await state.clear()
 
-    else:
-        # Otherwise, ignore or provide a default response
-        await message.answer("Botdan foydalanish uchun menyudan tanlovni bosing.",reply_markup=admin_keyboard.start_button)
-        await state.clear()
+# @dp.message(F.text.startswith("✍️"))
+# async def handle_other_text(message: types.Message, state: FSMContext):
+#     current_state = await state.get_state()
+#     if current_state:
+#         # If the user is in a state, do nothing or provide feedback
+#         await message.answer("Iltimos, tugmani tanlang yoki boshqa amalni bajaring.")
+#         await state.clear()
+
+#     else:
+#         # Otherwise, ignore or provide a default response
+#         await message.answer("Botdan foydalanish uchun menyudan tanlovni bosing.",reply_markup=admin_keyboard.start_button)
+#         await state.clear()
 
 
 # Bot ishga tushganligini adminlarga xabar beruvchi funksiya
