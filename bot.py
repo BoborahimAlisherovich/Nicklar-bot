@@ -116,7 +116,7 @@ async def send_advert(message: Message, state: FSMContext):
 @dp.message(F.text == "♻️ Orqaga")
 async def orqaga(message:Message,state:FSMContext):
     await  state.clear()
-    await message.answer("Menyulardan birini tanlang",reply_markup=admin_keyboard.start_button)
+    await message.answer("Ism kiriting",reply_markup=admin_keyboard.start_button)
 # Define state classes
 
 # Short nick command handler
