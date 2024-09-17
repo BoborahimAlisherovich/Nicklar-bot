@@ -44,13 +44,11 @@ async def start_command(message: Message,state:FSMContext):
     telegram_id = message.from_user.id
     try:
         db.add_user(full_name=full_name, telegram_id=telegram_id)
-        await state.set_state(ShortNickStates.waiting_for_name)
         await message.answer(text=f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. ",reply_markup=admin_keyboard.start_button)
 
 
 
     except:
-        await state.set_state(ShortNickStates.waiting_for_name)
         await message.answer(f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. 🚀",reply_markup=admin_keyboard.start_button)
 
                              
@@ -117,6 +115,7 @@ async def send_advert(message: Message, state: FSMContext):
 async def orqaga(message:Message,state:FSMContext):
     await  state.clear()
     await message.answer("Ism kiriting",reply_markup=admin_keyboard.start_button)
+    
 # Define state classes
 
 # Short nick command handler
@@ -142,6 +141,7 @@ async def guide_handler(message: Message, state: FSMContext):
 # Initialize logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 # Admin message handler
 @dp.message(F.text == "👨‍💼Admin")
@@ -259,7 +259,7 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
 @dp.callback_query(lambda c: c.data.startswith('reply:'))
 async def process_reply_callback(callback_query: CallbackQuery, state: FSMContext):
     user_id = int(callback_query.data.split(":")[1])
-    await callback_query.message.answer("Javobingizni yozing. Sizning javobingiz foydalanuvchiga yuboriladi.")
+    await callback_query.message.answer("Javobingizni yozing. Sizning javobingiz foydalanuvchiga yuboriladi.",reply_markup=admin_keyboard.start_button)
     await state.update_data(reply_user_id=user_id)
     await state.set_state(AdminStates.waiting_for_reply_message)
     await callback_query.answer()
@@ -300,7 +300,7 @@ async def handle_admin_reply(message: Message, state: FSMContext):
 
 
 # Generate short nicks only if in the correct state
-@dp.message(ShortNickStates.waiting_for_name)
+@dp.message()
 async def generate_short_nicks(message: types.Message, state: FSMContext):
     name = message.text.lower()
     await state.update_data(name=name)  # Save the name in state for pagination
@@ -357,22 +357,6 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.message.edit_text(text, reply_markup=markup.as_markup())
     await callback_query.answer()
     
-
-
-
-# @dp.message(F.text.startswith("✍️"))
-# async def handle_other_text(message: types.Message, state: FSMContext):
-#     current_state = await state.get_state()
-#     if current_state:
-#         # If the user is in a state, do nothing or provide feedback
-#         await message.answer("Iltimos, tugmani tanlang yoki boshqa amalni bajaring.")
-#         await state.clear()
-
-#     else:
-#         # Otherwise, ignore or provide a default response
-#         await message.answer("Botdan foydalanish uchun menyudan tanlovni bosing.",reply_markup=admin_keyboard.start_button)
-#         await state.clear()
-
 
 # Bot ishga tushganligini adminlarga xabar beruvchi funksiya
 @dp.startup()
