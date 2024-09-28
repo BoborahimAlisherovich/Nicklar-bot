@@ -9,6 +9,7 @@ emojilar = [
 
 # 50 xil uslubdagi yozuvlar
 yozuv = [
+    "𝓠𝔀𝓮𝓻𝓽𝔂𝓾𝓲𝓸𝓹𝓪𝓼𝓭𝓯𝓰𝓱𝓳𝓴𝓵𝔃𝔁𝓬𝓿𝓫𝓷𝓶"
     "𝓆𝓌𝑒𝓇𝓉𝓎𝓊𝒾𝑜𝓅𝒶𝓈𝒹𝒻𝑔𝒽𝒿𝓀𝓁𝓏𝓍𝒸𝓋𝒷𝓃𝓂",   # Yozma uslub
     "𝓠𝓦𝓔𝓡𝓣𝓨𝓤𝓘𝓞𝓟𝓐𝓢𝓓𝓕𝓖𝓗𝓙𝓚𝓛𝓩𝓧𝓒𝓥𝓑𝓝𝓜",   # Katta yozma
     "𝕼𝖂𝖊𝖗𝖙𝖞𝖚𝖎𝖔𝖕𝖆𝖘𝖉𝖋𝖌𝖍𝖏𝖐𝖑𝖟𝖝𝖈𝖛𝖇𝖓𝖒",   # Gotik shrift
@@ -69,7 +70,7 @@ yozuv = [
 
 
 def add_stylized_effects(text):
-    special_chars = [" ",]
+    special_chars = [""]
     result = ""
     for char in text:
         result += char + random.choice(special_chars)

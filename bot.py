@@ -117,16 +117,6 @@ async def orqaga(message:Message,state:FSMContext):
     await  state.clear()
     await message.answer("Ism kiriting",reply_markup=admin_keyboard.start_button)
     
-# Define state classes
-
-# Short nick command handler
-# @dp.message(F.text == "✍️ Qisqa nick")
-# async def short_nick_handler(message: types.Message, state: FSMContext):
-#     await state.set_state(ShortNickStates.waiting_for_name)
-#     await message.answer("Ism kiriting:", reply_markup=admin_keyboard.orqaga_button)
-
-
-
 #Qo'llanma
 @dp.message(F.text == "📙Qo'llanma")
 async def guide_handler(message: Message, state: FSMContext):
@@ -137,7 +127,6 @@ async def guide_handler(message: Message, state: FSMContext):
     3 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
     """
     await message.answer(text=text)
-
 
 # Initialize logger
 logging.basicConfig(level=logging.INFO)
