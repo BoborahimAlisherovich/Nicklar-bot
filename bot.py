@@ -25,19 +25,15 @@ from funksiyalar.funksiya import create_inline_keyboard
 from aiogram.types import CallbackQuery, ContentType
 from aiogram.fsm.context import FSMContext
 
-# Config fayldan ADMINS, TOKEN va CHANNELS o'zgaruvchilarini olish
 ADMINS = config.ADMINS
 TOKEN = config.BOT_TOKEN
 CHANNELS = config.CHANNELS
 
-# Dispatcher ob'ektini yaratish
 dp = Dispatcher()
 
-# Bot va Database ob'ektlari
 bot: Bot
 db: Database
 
-# /start komandasi uchun handler
 @dp.message(CommandStart())
 async def start_command(message: Message,state:FSMContext):
     full_name = message.from_user.full_name
@@ -53,7 +49,6 @@ async def start_command(message: Message,state:FSMContext):
         await message.answer(f"Salom! {full_name} Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. 🚀",reply_markup=admin_keyboard.start_button)
         await state.clear()
                              
-# Kanalga obuna bo'lishni tekshiruvchi handler
 @dp.message(IsCheckSubChannels())
 async def kanalga_obuna(message: Message):
     text = ""
@@ -65,36 +60,36 @@ async def kanalga_obuna(message: Message):
     button = inline_channel.as_markup()
     await message.answer(f"{text} kanallarga azo bo'ling", reply_markup=button)
 
-# /help komandasi uchun handler
+
 @dp.message(Command("help"))
 async def help_commands(message: Message):
     await message.answer("Yordam kerakmi? Biz sizga o'zingizga mos, noyob va original nik yaratishda yordam beramiz! 🔥 Istalgancha nik giniratsiya qiling, tanlang va boshqa hech kimga o'xshamaydigan uslubingizni yarating! 😎")
   
 
-# /about komandasi uchun handler
+
 @dp.message(Command("about"))
 async def about_commands(message: Message):
     await message.answer("Nik generatsiyasi: Foydalanuvchi ism kiritganda, bot bir nechta turli xil nik variantlarini yaratadi va ularni sahifalarga bo‘lib ko‘rsatadi. Har bir sahifada 10 ta nik ko‘rsatiladi va foydalanuvchi “Orqaga” yoki “Oldinga” tugmalari yordamida sahifalarni o‘zaro o‘zgartirishi mumkin.")
 
-# Admin bo'lishni tekshiruvchi handler
+
 @dp.message(Command("admin"), IsBotAdminFilter(ADMINS))
 async def is_admin(message: Message):
     await message.answer(text="Admin menu", reply_markup=admin_keyboard.admin_button)
 
-# Foydalanuvchilar sonini ko'rsatuvchi handler
+
 @dp.message(F.text == "Foydalanuvchilar soni", IsBotAdminFilter(ADMINS))
 async def users_count(message: Message):
     counts = db.count_users()
     text = f"Botimizda {counts[0]} ta foydalanuvchi bor"
     await message.answer(text=text)
 
-# Reklama yuborish komandasi uchun handler
+
 @dp.message(F.text == "Reklama yuborish", IsBotAdminFilter(ADMINS))
 async def advert_dp(message: Message, state: FSMContext):
     await state.set_state(Adverts.adverts)
     await message.answer(text="Reklama yuborishingiz mumkin !")
 
-# Reklama xabarini foydalanuvchilarga yuboruvchi handler
+
 @dp.message(Adverts.adverts)
 async def send_advert(message: Message, state: FSMContext):
     message_id = message.message_id
@@ -133,7 +128,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# Admin message handler
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
     await message.answer("Admin uchun xabar yuboring:",reply_markup=admin_keyboard.orqaga_button)
@@ -152,7 +146,7 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name or ""  # Some users may not have a last name
 
-    # Use username if available, otherwise use first name + last name
+
     if username:
         user_identifier = f"@{username}"
     else:
@@ -164,7 +158,6 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
         try:
             if video_note:
                 print('adfs', message.video_note.file_id)
-                # Echo the video note back to the user
                 await bot.send_video_note(
                     admin_id,
                     video_note.file_id,
@@ -245,7 +238,7 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
     await state.clear()
     await bot.send_message(user_id, "Admin sizga javob berishi mumkin.", reply_markup=admin_keyboard.start_button)
 
-# Callback query handler for the reply button
+
 @dp.callback_query(lambda c: c.data.startswith('reply:'))
 async def process_reply_callback(callback_query: CallbackQuery, state: FSMContext):
     user_id = int(callback_query.data.split(":")[1])
@@ -254,7 +247,7 @@ async def process_reply_callback(callback_query: CallbackQuery, state: FSMContex
     await state.set_state(AdminStates.waiting_for_reply_message)
     await callback_query.answer()
 
-# Handle admin reply and send it back to the user
+
 @dp.message(AdminStates.waiting_for_reply_message)
 async def handle_admin_reply(message: Message, state: FSMContext):
     data = await state.get_data()
@@ -289,14 +282,14 @@ async def handle_admin_reply(message: Message, state: FSMContext):
 
 
 
-# Generate short nicks only if in the correct state
+
 @dp.message()
 async def generate_short_nicks(message: types.Message, state: FSMContext):
     name = message.text.lower()
-    await state.update_data(name=name)  # Save the name in state for pagination
+    await state.update_data(name=name)  
     nicknames = nick_generator(name=name)
 
-    # Pagination
+
     page_size = 10
     page_num = 0
     total_pages = (len(nicknames) + page_size - 1) // page_size
@@ -313,23 +306,22 @@ async def generate_short_nicks(message: types.Message, state: FSMContext):
         markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}"))
 
     await message.answer(text, reply_markup=markup.as_markup())
-    # Do not clear the state here to allow for pagination
 
 
-# Callback handler for pagination
+
 @dp.callback_query(lambda c: c.data.startswith("short_page_"))
 async def handle_short_page(callback_query: types.CallbackQuery, state: FSMContext):
     data = callback_query.data.split("_")
     page_num = int(data[2])
 
-    # Retrieve the name from the state
+
     user_data = await state.get_data()
     name = user_data.get('name')
 
-    # Get all nicknames again
+
     nicknames = nick_generator(name=name)
 
-    # Pagination logic
+
     page_size = 10
     total_pages = (len(nicknames) + page_size - 1) // page_size
     paginated_nicknames = nicknames[page_num * page_size:(page_num + 1) * page_size]
@@ -348,7 +340,7 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     
 
-# Bot ishga tushganligini adminlarga xabar beruvchi funksiya
+
 @dp.startup()
 async def on_startup_notify(bot: Bot):
     for admin in ADMINS:
@@ -357,7 +349,7 @@ async def on_startup_notify(bot: Bot):
         except Exception as err:
             logging.exception(err)
 
-# Bot to'xtaganda adminlarga xabar beruvchi funksiya
+
 @dp.shutdown()
 async def off_startup_notify(bot: Bot):
     for admin in ADMINS:
@@ -366,14 +358,14 @@ async def off_startup_notify(bot: Bot):
         except Exception as err:
             logging.exception(err)
 
-# O'rta dasturlarni sozlash uchun funksiya
+
 def setup_middlewares(dispatcher: Dispatcher, bot: Bot) -> None:
     """MIDDLEWARE"""
     from middlewares.throttling import ThrottlingMiddleware
 
     dispatcher.message.middleware(ThrottlingMiddleware(slow_mode_delay=0.5))
 
-# Asosiy funksiya
+
 async def main() -> None:
     global bot, db
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -383,7 +375,7 @@ async def main() -> None:
     await dp.start_polling(bot)
 
     await bot.delete_webhook(drop_pending_updates=True)
-# Agar skript to'g'ridan-to'g'ri ishga tushirilsa
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
