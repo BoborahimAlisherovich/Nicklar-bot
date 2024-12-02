@@ -132,8 +132,8 @@ logger = logging.getLogger(__name__)
 
 @dp.message(F.text == "Kurinmas nick")
 async def Kurinmas_nick(message: Message, state: FSMContext):
-    texti = "ㅤㅤㅤ 🫴"
-    await message.answer(f"<code>{texti}</code>",reply_markup=admin_keyboard.start_button)
+    texti = "ㅤㅤㅤ "
+    await message.answer(f"<code>{texti}</code> 🫴",reply_markup=admin_keyboard.start_button)
     await state.clear()
      
    
