@@ -128,6 +128,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+
+
+@dp.message(F.text == "Kurinmas nick")
+async def Kurinmas_nick(message: Message, state: FSMContext):
+    texti = "ㅤㅤㅤ 🫴"
+    await message.answer(f"<code>{texti}</code>",reply_markup=admin_keyboard.start_button)
+    await state.clear()
+     
+   
+
+
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
     await message.answer("Admin uchun xabar yuboring:",reply_markup=admin_keyboard.orqaga_button)
