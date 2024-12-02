@@ -23,7 +23,7 @@ start_button = ReplyKeyboardMarkup(
         ],
             [
          
-            KeyboardButton(text="Kurinmas nick"),
+            KeyboardButton(text="Ko'rinmas nick"),
         ],
         
           [
