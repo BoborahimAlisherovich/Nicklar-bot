@@ -119,7 +119,8 @@ async def guide_handler(message: Message, state: FSMContext):
     Botdan foydalanish uchun qo'llanma:
     1 Qisqa nik yaratish uchun ismingizni kiriting.
     2 Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
-    3 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
+    3 Ko'rinmas nick - ustiga bosing va nusxa oling 
+    4 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
     """
     await message.answer(text=text)
 
