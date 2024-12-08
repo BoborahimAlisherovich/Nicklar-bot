@@ -1,9 +1,8 @@
 import random
 
-text = "qwertyuiopasdfghjklzxcvbnm"
-
+text = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+text3 = "йцукенгшўзфқвапролдячсмитьЙЦУКЕНГШЎЗФҚВАПРОЛДЯЧСМИТЬ"
 yozuv = [
-
    "ợฬєгtץยเ๏թคร๔Ŧɠђןкlzxςv๒ภ๓",
    "ᵠᵂᵉʳᵗᵧᵤᵢᵒᵖᵃˢᵈᶠᵍʰʲᵏˡᶻˣᶜᵛᵇᶰᵐ",
     "Q𝓌ɆℛƬƳ𝓾𝓲o₱𝔸ⓈⒹⒻⒼℌᒎⓚᒪ𝔃𝕏ⒸⓋ฿𝕟𝕄",
@@ -79,10 +78,9 @@ yozuv = [
      "𝒒᭙𝒆𝗿†ᥡᶶ¡őᵽ𝕒ṧÐϝ𝑔𝐡ɉ𝐤ₗᴢxc𝔳𝔟𝚗m",
      "qwêr†¥µïðþå§Ð£ghjklzx¢vßñm",
      "q𝔀ⓔᖇ𝕥ｙⓊᎥσｐ𝓪ร∂ᶠᎶђＪⓀ𝓵žx𝒸ⓥ𝕓ⓝⓂ",
-    
-
    
 ]
+
 
 
 
@@ -95,12 +93,13 @@ def add_stylized_effects(text):
     return result
 
 
+
 def nick_generator(name,son=None):
     result = []
     if son:
         fon = yozuv[son-1]
         min_length = max(len(text), len(fon))
-        my_name = name.lower()
+        my_name = name
         for i in range(min_length):
           if i < len(name) and i < len(fon):  
             my_name = my_name.replace(text[i], fon[i])
@@ -111,7 +110,7 @@ def nick_generator(name,son=None):
     else:
         for fon in yozuv:
             min_length = min(len(text), len(fon))
-            my_name = name.lower()
+            my_name = name
             for i in range(min_length):
                 my_name = my_name.replace(text[i], fon[i])
             stylized_name = add_stylized_effects(my_name)
@@ -127,6 +126,3 @@ def transform_text(input_text, styles):
     translation_table = str.maketrans(text, selected_style)
     # Return the styled text
     return input_text.translate(translation_table)
-
-
-

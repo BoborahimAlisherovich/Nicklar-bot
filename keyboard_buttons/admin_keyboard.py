@@ -19,22 +19,20 @@ start_button = ReplyKeyboardMarkup(
     
          [
             KeyboardButton(text="📙Qo'llanma"),
+             KeyboardButton(text="Top nick"),
  
         ],
             [
          
-            KeyboardButton(text="Ko'rinmas nick"),
+            KeyboardButton(text="Trenddagi Stikerlar"),
+             KeyboardButton(text="👨‍💼Admin"),
         ],
-        
-          [
-         
-            KeyboardButton(text="👨‍💼Admin"),
-        ]
-        
+       
         
     ],
   resize_keyboard=True
 )
+
 
 
 orqaga_button = ReplyKeyboardMarkup(

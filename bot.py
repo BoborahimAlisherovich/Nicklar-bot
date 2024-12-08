@@ -107,11 +107,18 @@ async def send_advert(message: Message, state: FSMContext):
     await message.answer(f"Reklama {count}ta foydalanuvchiga yuborildi")
     await state.clear()
 
+
+
+
 @dp.message(F.text == "♻️ Orqaga")
 async def orqaga(message:Message,state:FSMContext):
     await  state.clear()
     await message.answer("Ism kiriting",reply_markup=admin_keyboard.start_button)
     
+
+
+
+
 #Qo'llanma
 @dp.message(F.text == "📙Qo'llanma")
 async def guide_handler(message: Message, state: FSMContext):
@@ -130,15 +137,94 @@ logger = logging.getLogger(__name__)
 
 
 
+from emojelar import allah_names, top_nick
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import types
+# from aiogram.dispatcher.filters import Text
+# from aiogram.dispatcher import FSMContext
 
-@dp.message(F.text == "Ko'rinmas nick")
-async def Kurinmas_nick(message: Message, state: FSMContext):
-    texti = "ㅤㅤㅤ "
-    await message.answer(f"<code>{texti}</code> 🫴",reply_markup=admin_keyboard.start_button)
+NAMES_PER_PAGE = 1  # Trenddagi Stikerlar uchun sahifadagi elementlar soni
+NAMES_PER_PAGES = 10  # Top Nick uchun sahifadagi elementlar soni
+
+# Trenddagi Stikerlar pagination uchun klaviatura
+def get_pagination_keyboard(current_page):
+    buttons = []
+    if current_page > 0:
+        buttons.append(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"prev:{current_page - 1}"))
+    if (current_page + 1) * NAMES_PER_PAGE < len(allah_names):
+        buttons.append(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"next:{current_page + 1}"))
+    return InlineKeyboardMarkup(inline_keyboard=[buttons])
+
+# Trenddagi Stikerlar sahifa matni
+def get_names_page(page):
+    start = page * NAMES_PER_PAGE
+    end = start + NAMES_PER_PAGE
+    return "\n\n".join(map(str, allah_names[start:end]))
+
+# Top Nick pagination uchun klaviatura
+def get_pagination_keyboardd(current_pages):
+    buttons = []
+    if current_pages > 0:
+        buttons.append(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"prev1:{current_pages - 1}"))
+    if (current_pages + 1) * NAMES_PER_PAGES < len(top_nick):
+        buttons.append(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"next1:{current_pages + 1}"))
+    return InlineKeyboardMarkup(inline_keyboard=[buttons])
+def get_names_pages(page):
+    start = page * NAMES_PER_PAGES
+    end = start + NAMES_PER_PAGES
+    paginated_nicknamess = top_nick[start:end]
+    
+    return "\n\n".join([f"{idx + start + 1}- <code>{nicks}</code>" for idx, nicks in enumerate(paginated_nicknamess)])
+
+# Trenddagi Stikerlar uchun handler
+@dp.message(F.text == "Trenddagi Stikerlar")
+async def send_names(message: types.Message, state: FSMContext):
+    await message.delete()
+    current_page = 0
+    await message.answer(
+        text="```" + get_names_page(current_page) + "```",
+        reply_markup=get_pagination_keyboard(current_page),
+        parse_mode="Markdown"
+    )
     await state.clear()
-     
-   
 
+# Trenddagi Stikerlar pagination callback handler
+@dp.callback_query(lambda c: c.data and (c.data.startswith('next:') or c.data.startswith('prev:')))
+async def process_pagination(callback_query: types.CallbackQuery, state: FSMContext):
+    action, page = callback_query.data.split(':')
+    current_page = int(page)
+    await callback_query.message.edit_text(
+        text="```" + get_names_page(current_page) + "```",
+        reply_markup=get_pagination_keyboard(current_page),
+        parse_mode="Markdown"
+    )
+    await callback_query.answer()
+    await state.clear()
+
+# Top Nick uchun handler
+@dp.message(F.text == "Top nick")
+async def send_namess(message: types.Message, state: FSMContext):
+    await message.delete()
+    current_page = 0
+    await message.answer(
+        text=get_names_pages(current_page),
+        reply_markup=get_pagination_keyboardd(current_page),
+        parse_mode="HTML"
+    )
+    await state.clear()
+
+# Top Nick pagination callback handler
+@dp.callback_query(lambda c: c.data and (c.data.startswith('next1:') or c.data.startswith('prev1:')))
+async def process_paginations(callback_query: types.CallbackQuery, state: FSMContext):
+    action, page = callback_query.data.split(':')
+    current_page = int(page)
+    await callback_query.message.edit_text(
+        text=get_names_pages(current_page),
+        reply_markup=get_pagination_keyboardd(current_page),
+        parse_mode="HTML"
+    )
+    await callback_query.answer()
+    await state.clear()
 
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
@@ -160,81 +246,93 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
 
 
     if username:
-        user_identifier = f"@{username}"
+      user_identifier = f"@{username}"
     else:
-        user_identifier = f"{first_name} {last_name}".strip()  # Remove any extra spaces
+        user_link = f"[{first_name} {last_name}](tg://user?id={user_id})"
+        user_identifier = user_link
+
 
     video_note = message.video_note
     inline_keyboard = create_inline_keyboard(user_id)
     for admin_id in ADMINS:
         try:
             if video_note:
-                print('adfs', message.video_note.file_id)
+                # print('adfs', message.video_note.file_id)
                 await bot.send_video_note(
                     admin_id,
                     video_note.file_id,
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.text:
                 await bot.send_message(
                     admin_id,
                     f"Foydalanuvchi: {user_identifier}\nXabar:\n{message.text}",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.audio:
                 await bot.send_audio(
                     admin_id,
                     message.audio.file_id,
                     caption=f"Foydalanuvchi: {user_identifier}\nAudio xabar",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.voice:
                 await bot.send_voice(
                     admin_id,
                     message.voice.file_id,
                     caption=f"Foydalanuvchi: {user_identifier}\nVoice xabar",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.video:
                 await bot.send_video(
                     admin_id,
                     message.video.file_id,
                     caption=f"Foydalanuvchi: {user_identifier}\nVideo xabar",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.photo:
                 await bot.send_photo(
                     admin_id,
                     message.photo[-1].file_id,  # using the highest resolution photo
                     caption=f"Foydalanuvchi: {user_identifier}\nRasm xabar",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.animation:
                 await bot.send_animation(
                     admin_id,
                     message.animation.file_id,
                     caption=f"Foydalanuvchi: {user_identifier}\nGIF xabar",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.sticker:
                 await bot.send_sticker(
                     admin_id,
                     message.sticker.file_id,
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.location:
                 await bot.send_location(
                     admin_id,
                     latitude=message.location.latitude,
                     longitude=message.location.longitude,
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.document:
                 await bot.send_document(
                     admin_id,
                     message.document.file_id,
                     caption=f"Foydalanuvchi: {user_identifier}\nHujjat xabar",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
             elif message.contact:
                 await bot.send_contact(
@@ -242,7 +340,8 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
                     phone_number=message.contact.phone_number,
                     first_name=message.contact.first_name,
                     last_name=message.contact.last_name or "",
-                    reply_markup=inline_keyboard
+                    reply_markup=inline_keyboard,
+                     parse_mode="MarkdownV2" 
                 )
         except Exception as e:
             logging.error(f"Error sending message to admin {admin_id}: {e}")
@@ -294,7 +393,7 @@ async def handle_admin_reply(message: Message, state: FSMContext):
 
 
 
-
+# nick funksiya 
 @dp.message()
 async def generate_short_nicks(message: types.Message, state: FSMContext):
     name = message.text.lower()
