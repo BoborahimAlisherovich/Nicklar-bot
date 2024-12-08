@@ -123,12 +123,16 @@ async def orqaga(message:Message,state:FSMContext):
 @dp.message(F.text == "📙Qo'llanma")
 async def guide_handler(message: Message, state: FSMContext):
     text = """
-    Botdan foydalanish uchun qo'llanma:
-    1 Qisqa nik yaratish uchun ismingizni kiriting.
-    2 Qo'llanmani ko'rish uchun '📙 Qo'llanma' tugmasini bosing.
-    3 Ko'rinmas nick - ustiga bosing va nusxa oling 
-    4 Admin bilan bog'lanish uchun '👨‍💼 Admin' tugmasini bosing va xabar yuboring.
-    """
+  Botdan foydalanish uchun yo'riqnoma:
+💡 Botdan unumli foydalaning va o'z uslubingizni yarating!
+
+1️⃣ Qisqa nik yaratish: Botdan qisqa va chiroyli niklar olish uchun ismingizni kiriting – bot sizga noyob variantlarni taklif qiladi.
+2️⃣ Qo'llanma bilan tanishing: Botdan to'g'ri foydalanishni o'rganish uchun '📙 Qo'llanma' tugmasini bosing va barcha funksiyalar haqida batafsil ma'lumot oling.
+3️⃣ Top niklar to'plami: Eng chiroyli va mashhur niklar ro'yxatini ko'ring, o'ziga xos uslubingizni toping!
+4️⃣ Trenddagi stiklarlar: Siz uchun eng chiroyli va dolzarb stiklarlar to'plami tayyor! Ularni sinab ko'ring va muloqotingizni yanada qiziqarli qiling.
+5️⃣ Admin bilan bog'laning: Savollaringiz yoki takliflaringiz bo'lsa, '👨‍💼 Admin' tugmasini bosing va o'z xabaringizni yuboring.
+
+✨ Botdan foydalanib, o'z uslubingizni yarating va ijodingizni bahramand qiling!  """
     await message.answer(text=text)
 
 # Initialize logger
