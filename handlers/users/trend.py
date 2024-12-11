@@ -76,10 +76,12 @@ def get_names_pages(page):
     end = start + NAMES_PER_PAGES
     paginated_nicknamess = top_nick[start:end]
     
-    return "\n\n".join([f"{idx + start + 1}- <code>{nicks}</code>" for idx, nicks in enumerate(paginated_nicknamess)])
-
+    return "\n\n\n".join([
+        f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{'Kurinmas Nick' if idx + start == 0 else ''}</i>"
+        for idx, nicks in enumerate(paginated_nicknamess)
+    ])
 # Trenddagi Stikerlar uchun handler
-@dp.message(F.text == "Trenddagi Stikerlar")
+@dp.message(F.text == "🔥Trenddagi Stikerlar")
 async def send_names(message: types.Message, state: FSMContext):
     await message.delete()
     current_page = 0
@@ -104,7 +106,7 @@ async def process_pagination(callback_query: types.CallbackQuery, state: FSMCont
     await state.clear()
 
 # Top Nick uchun handler
-@dp.message(F.text == "Top nick")
+@dp.message(F.text == "✨Top nick")
 async def send_namess(message: types.Message, state: FSMContext):
     await message.delete()
     current_page = 0

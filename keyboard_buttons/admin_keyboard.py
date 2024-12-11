@@ -18,16 +18,16 @@ start_button = ReplyKeyboardMarkup(
     keyboard=[
     
          [
-            KeyboardButton(text="📙Qo'llanma"),
-             KeyboardButton(text="Top nick"),
+         KeyboardButton(text="🔥Trenddagi Stikerlar"),
+             KeyboardButton(text="✨Top nick"),
  
         ],
             [
          
-            KeyboardButton(text="Trenddagi Stikerlar"),
+            KeyboardButton(text="📙Qo'llanma"),
              KeyboardButton(text="👨‍💼Admin"),
         ],
-       
+          
         
     ],
   resize_keyboard=True
