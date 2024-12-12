@@ -12,6 +12,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 @dp.message()
 async def generate_short_nicks(message: types.Message, state: FSMContext):
     name = message.text.lower()
+    await message.delete()
     await state.update_data(name=name)  
     nicknames = nick_generator(name=name)
 
@@ -30,8 +31,9 @@ async def generate_short_nicks(message: types.Message, state: FSMContext):
         markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}"))
     if page_num < total_pages - 1:
         markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}"))
-
+    
     await message.answer(text, reply_markup=markup.as_markup())
+
 
 
 
@@ -39,14 +41,9 @@ async def generate_short_nicks(message: types.Message, state: FSMContext):
 async def handle_short_page(callback_query: types.CallbackQuery, state: FSMContext):
     data = callback_query.data.split("_")
     page_num = int(data[2])
-
-
     user_data = await state.get_data()
     name = user_data.get('name')
-
-
     nicknames = nick_generator(name=name)
-
 
     page_size = 10
     total_pages = (len(nicknames) + page_size - 1) // page_size
