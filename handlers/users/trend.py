@@ -75,9 +75,9 @@ def get_names_pages(page):
     start = page * NAMES_PER_PAGES
     end = start + NAMES_PER_PAGES
     paginated_nicknamess = top_nick[start:end]
-    
+    korinmas = "Ko'rinmas Nick"
     return "\n\n\n".join([
-        f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{'Kurinmas Nick' if idx + start == 0 else ''}</i>"
+        f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{korinmas if idx + start == 0 else ''}</i>"
         for idx, nicks in enumerate(paginated_nicknamess)
     ])
 # Trenddagi Stikerlar uchun handler
