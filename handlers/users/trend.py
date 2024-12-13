@@ -83,7 +83,6 @@ def get_names_pages(page):
 # Trenddagi Stikerlar uchun handler
 @dp.message(F.text == "🔥Trenddagi Stikerlar")
 async def send_names(message: types.Message, state: FSMContext):
-    await message.delete()
     current_page = 0
     await message.answer(
         text="```" + get_names_page(current_page) + "```",
@@ -108,7 +107,6 @@ async def process_pagination(callback_query: types.CallbackQuery, state: FSMCont
 # Top Nick uchun handler
 @dp.message(F.text == "✨Top nick")
 async def send_namess(message: types.Message, state: FSMContext):
-    await message.delete()
     current_page = 0
     await message.answer(
         text=get_names_pages(current_page),
