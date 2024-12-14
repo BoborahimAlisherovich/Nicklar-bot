@@ -15,6 +15,7 @@ python3 -m venv venv && source venv/bin/activate && pip3 install -r requirements
 
 ### 3. Run bot.py
 Windows
+..
 ```shell
 python bot.py
 ```
