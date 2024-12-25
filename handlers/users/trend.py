@@ -45,10 +45,8 @@ logger = logging.getLogger(__name__)
 
 
 
-NAMES_PER_PAGE = 1  # Trenddagi Stikerlar uchun sahifadagi elementlar soni
-NAMES_PER_PAGES = 10  # Top Nick uchun sahifadagi elementlar soni
-
-# Trenddagi Stikerlar pagination uchun klaviatura
+NAMES_PER_PAGE = 1 
+NAMES_PER_PAGES = 10 
 def get_pagination_keyboard(current_page):
     buttons = []
     if current_page > 0:
@@ -63,7 +61,6 @@ def get_names_page(page):
     end = start + NAMES_PER_PAGE
     return "\n\n".join(map(str, allah_names[start:end]))
 
-# Top Nick pagination uchun klaviatura
 def get_pagination_keyboardd(current_pages):
     buttons = []
     if current_pages > 0:
@@ -80,7 +77,6 @@ def get_names_pages(page):
         f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{korinmas if idx + start == 0 else ''}</i>"
         for idx, nicks in enumerate(paginated_nicknamess)
     ])
-# Trenddagi Stikerlar uchun handler
 @dp.message(F.text == "🔥Trenddagi Stikerlar")
 async def send_names(message: types.Message, state: FSMContext):
     current_page = 0
@@ -91,7 +87,6 @@ async def send_names(message: types.Message, state: FSMContext):
     )
     await state.clear()
 
-# Trenddagi Stikerlar pagination callback handler
 @dp.callback_query(lambda c: c.data and (c.data.startswith('next:') or c.data.startswith('prev:')))
 async def process_pagination(callback_query: types.CallbackQuery, state: FSMContext):
     action, page = callback_query.data.split(':')
@@ -104,7 +99,6 @@ async def process_pagination(callback_query: types.CallbackQuery, state: FSMCont
     await callback_query.answer()
     await state.clear()
 
-# Top Nick uchun handler
 @dp.message(F.text == "✨Top nick")
 async def send_namess(message: types.Message, state: FSMContext):
     current_page = 0
@@ -115,7 +109,6 @@ async def send_namess(message: types.Message, state: FSMContext):
     )
     await state.clear()
 
-# Top Nick pagination callback handler
 @dp.callback_query(lambda c: c.data and (c.data.startswith('next1:') or c.data.startswith('prev1:')))
 async def process_paginations(callback_query: types.CallbackQuery, state: FSMContext):
     action, page = callback_query.data.split(':')

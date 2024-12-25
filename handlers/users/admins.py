@@ -10,11 +10,9 @@ import logging
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import re
 
-# Logger sozlamalari
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Orqaga qaytish handler
 @dp.message(F.text == "♻️ Orqaga")
 async def orqaga(message: Message, state: FSMContext):
     await state.clear()
@@ -23,7 +21,6 @@ async def orqaga(message: Message, state: FSMContext):
         reply_markup=admin_keyboard.start_button
     )
 
-# Inline keyboard yaratish
 def create_inline_keyboard(user_id):
     keyboard_builder = InlineKeyboardBuilder()
     keyboard_builder.button(
@@ -31,14 +28,9 @@ def create_inline_keyboard(user_id):
     )
     return keyboard_builder.as_markup()
 
-# Telegram user_link yaratish
 def get_user_link(user_id, first_name):
-    """
-    Foydalanuvchining bosiladigan profil linkini qaytaradi.
-    """
     return f"[{first_name}](tg://user?id={user_id})"
 
-# Admin xabar yuborish
 @dp.message(F.text == "👨‍💼Admin")
 async def admin_message(message: Message, state: FSMContext):
     await message.answer(
@@ -46,7 +38,6 @@ async def admin_message(message: Message, state: FSMContext):
     )
     await state.set_state(AdminStates.waiting_for_admin_message)
 
-# Admin xabarini qabul qilish va yuborish
 @dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
     ContentType.TEXT, ContentType.AUDIO, ContentType.VOICE, ContentType.VIDEO,
     ContentType.PHOTO, ContentType.ANIMATION, ContentType.STICKER, 
@@ -56,7 +47,7 @@ async def admin_message(message: Message, state: FSMContext):
 async def handle_admin_message(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     first_name = message.from_user.first_name
-    user_link = get_user_link(user_id, first_name)  # Foydalanuvchi linki
+    user_link = get_user_link(user_id, first_name)  
     inline_keyboard = create_inline_keyboard(user_id)
 
     for admin_id in ADMINS:
@@ -84,7 +75,6 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
                     reply_markup=inline_keyboard,
                     parse_mode="Markdown"
                 )
-            # Qo'shimcha content turlari
             elif message.video:
                 await bot.send_video(
                     admin_id,
@@ -93,7 +83,6 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
                     reply_markup=inline_keyboard,
                     parse_mode="Markdown"
                 )
-            # Qo'llab-quvvatlanmagan tur uchun loglash
             else:
                 await bot.send_message(admin_id, f"Foydalanuvchidan yangi xabar: {user_link}")
         except Exception as e:
@@ -102,7 +91,6 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer("Admin sizga javob berishi mumkin.", reply_markup=admin_keyboard.start_button)
 
-# Javob callback handler
 @dp.callback_query(lambda c: c.data.startswith('reply:'))
 async def process_reply_callback(callback_query: CallbackQuery, state: FSMContext):
     user_id = int(callback_query.data.split(":")[1])
@@ -114,7 +102,6 @@ async def process_reply_callback(callback_query: CallbackQuery, state: FSMContex
     await state.set_state(AdminStates.waiting_for_reply_message)
     await callback_query.answer()
 
-# Admin javobini foydalanuvchiga yuborish
 @dp.message(AdminStates.waiting_for_reply_message)
 async def handle_admin_reply(message: Message, state: FSMContext):
     data = await state.get_data()

@@ -115,9 +115,6 @@ def nick_generator(name,son=None):
         return result
 
 def transform_text(input_text, styles):
-    # Select a random style
     selected_style = random.choice(styles)
-    # Map each character in the input text to the corresponding character in the selected style
     translation_table = str.maketrans(text, selected_style)
-    # Return the styled text
     return input_text.translate(translation_table)
