@@ -1,6 +1,6 @@
 
 from aiogram.types import Message
-from loader import dp
+from loader import dp, db
 from aiogram.filters import Command
 from aiogram import types
 from aiogram.fsm.context import FSMContext
@@ -12,28 +12,34 @@ from aiogram import F
 from handlers.users.emojelar import allah_names, top_nick
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram import types
+import json
 
+def load_texts():
+    with open("languages.json", "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    
+texts = load_texts()
 
+def is_guied_us_message(message_text):
+    possible_texts = [
+        texts.get(lang, {}).get("menu", {}).get("menu_button_4", "")
+        for lang in texts
+    ]
+    return message_text in possible_texts
+# ["📙Qo'llanma","📙 Guide","📙 Гид"]
+@dp.message(lambda message: is_guied_us_message(message.text))
+async def guied_us(message: Message, state: FSMContext):
+    telegram_id = message.from_user.id
 
+    user = db.select_user_by_id(telegram_id=telegram_id)
 
+    language = "uz" 
 
-#Qo'llanma
-@dp.message(F.text == "📙Qo'llanma")
-async def guide_handler(message: Message, state: FSMContext):
-    text = """
-  Botdan foydalanish uchun yo'riqnoma:
-💡 Botdan unumli foydalaning va o'z uslubingizni yarating!
+    if user:
+        language = user[2]
+    text = texts.get(language, {}).get("guide", "Tilga mos matn topilmadi.")
 
-1️⃣ Qisqa nik yaratish: Botdan qisqa va chiroyli niklar olish uchun ismingizni kiriting – bot sizga noyob variantlarni taklif qiladi.
-2️⃣ Qo'llanma bilan tanishing: Botdan to'g'ri foydalanishni o'rganish uchun '📙 Qo'llanma' tugmasini bosing va barcha funksiyalar haqida batafsil ma'lumot oling.
-3️⃣ Top niklar to'plami: Eng chiroyli va mashhur niklar ro'yxatini ko'ring, o'ziga xos uslubingizni toping!\nEslatib o‘tamiz 1- raqamdagi ko‘rinmas nick
-4️⃣ Trenddagi stiklarlar: Siz uchun eng chiroyli va dolzarb stiklarlar to'plami tayyor! Ularni sinab ko'ring va muloqotingizni yanada qiziqarli qiling.
-5️⃣ Admin bilan bog'laning: Savollaringiz yoki takliflaringiz bo'lsa, '👨‍💼 Admin' tugmasini bosing va o'z xabaringizni yuboring.
-
-✨ Botdan foydalanib, o'z uslubingizni yarating va ijodingizni bahramand qiling!  """
-    await message.answer(text=text)
+    await message.answer(text, parse_mode='html')
     await state.clear()
 
 # Initialize logger
@@ -50,9 +56,9 @@ NAMES_PER_PAGES = 10
 def get_pagination_keyboard(current_page):
     buttons = []
     if current_page > 0:
-        buttons.append(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"prev:{current_page - 1}"))
+        buttons.append(InlineKeyboardButton(text="⬅️", callback_data=f"prev:{current_page - 1}"))
     if (current_page + 1) * NAMES_PER_PAGE < len(allah_names):
-        buttons.append(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"next:{current_page + 1}"))
+        buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"next:{current_page + 1}"))
     return InlineKeyboardMarkup(inline_keyboard=[buttons])
 
 # Trenddagi Stikerlar sahifa matni
@@ -64,9 +70,9 @@ def get_names_page(page):
 def get_pagination_keyboardd(current_pages):
     buttons = []
     if current_pages > 0:
-        buttons.append(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"prev1:{current_pages - 1}"))
+        buttons.append(InlineKeyboardButton(text="⬅️", callback_data=f"prev1:{current_pages - 1}"))
     if (current_pages + 1) * NAMES_PER_PAGES < len(top_nick):
-        buttons.append(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"next1:{current_pages + 1}"))
+        buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"next1:{current_pages + 1}"))
     return InlineKeyboardMarkup(inline_keyboard=[buttons])
 def get_names_pages(page):
     start = page * NAMES_PER_PAGES
@@ -77,7 +83,9 @@ def get_names_pages(page):
         f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{korinmas if idx + start == 0 else ''}</i>"
         for idx, nicks in enumerate(paginated_nicknamess)
     ])
-@dp.message(F.text == "🔥Trenddagi Stikerlar")
+
+
+@dp.message(lambda message: message.text in ["🔥Mashhur Stikerlar", "🔥 Popular Stickers", "🔥 Популярные стикеры"])
 async def send_names(message: types.Message, state: FSMContext):
     current_page = 0
     await message.answer(
@@ -99,7 +107,7 @@ async def process_pagination(callback_query: types.CallbackQuery, state: FSMCont
     await callback_query.answer()
     await state.clear()
 
-@dp.message(F.text == "✨Top nick")
+@dp.message(lambda message: message.text in ["✨ Top nik","✨ Top Nick","✨ Топ ник"])
 async def send_namess(message: types.Message, state: FSMContext):
     current_page = 0
     await message.answer(

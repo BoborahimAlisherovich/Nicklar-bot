@@ -1,9 +1,26 @@
 from aiogram.types import Message
-from loader import dp
+from loader import dp, db
 from aiogram.filters import Command
-from keyboard_buttons import admin_keyboard
+import json
 
-#help commands
+def load_texts():
+    with open("languages.json", "r", encoding="utf-8") as f:
+        return json.load(f)
+
+texts = load_texts()
+
 @dp.message(Command("help"))
-async def help_commands(message:Message):
-    await message.answer("Yordam kerakmi? Biz sizga o'zingizga mos, noyob va original nik yaratishda yordam beramiz! 🔥 Istalgancha nik giniratsiya qiling, tanlang va boshqa hech kimga o'xshamaydigan uslubingizni yarating! 😎",reply_markup=admin_keyboard.start_button)
+async def help_commands(message: Message):
+    telegram_id = message.from_user.id
+
+    user = db.select_user_by_id(telegram_id=telegram_id)
+
+    language = "uz" 
+
+    if user:
+        language = user[2]
+    text = texts.get(language, {}).get("help", "Tilga mos matn topilmadi.")
+
+    await message.answer(text, parse_mode='html')
+
+    

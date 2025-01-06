@@ -1,0 +1,61 @@
+{
+    "uz": {
+        "start_message": "Tilni tanlang 🇺🇿 | Choose a language 🇺🇸 | Выберите язык 🇷🇺",
+        "selected_language": "Siz O'zbek tilini tanladingiz 🇺🇿",
+        "welcome_message" : "Salom!  Botimizga xush kelibsiz! 🎉 Siz o'ziga xos, qiziqarli va esda qolarli niklar yaratmoqchimisiz? Endi bu juda oson! 💫 Shunchaki ism kiriting va biz sizga eng zo'r variantlarni taqdim etamiz. 🚀",
+        "menu": {    
+            "menu_button_1": "🔥Mashhur Stikerlar",
+            "menu_button_2": "✨ Top nik",
+            "menu_button_3": "👨‍💼 Admin ",
+            "menu_button_4": "📙Qo'llanma",
+            "menu_button_5": "Tilni o'zgartirish"
+        },
+        "help" : "Yordam kerakmi? Biz sizga o'zingizga mos, noyob va original nik yaratishda yordam beramiz! 🔥 Istalgancha nik giniratsiya qiling, tanlang va boshqa hech kimga o'xshamaydigan uslubingizni yarating! 😎",
+        "guide" : "💡 Botdan unumli foydalaning va o'z uslubingizni yarating! \n 1️⃣ Qisqa nik yaratish: Botdan qisqa va chiroyli niklar olish uchun ismingizni kiriting – bot sizga noyob variantlarni taklif qiladi. \n 2️⃣ Qo'llanma bilan tanishing: Botdan to'g'ri foydalanishni o'rganish uchun '📙 Qo'llanma' tugmasini bosing va barcha funksiyalar haqida batafsil ma'lumot oling. \n 3️⃣ Top niklar to'plami: Eng chiroyli va mashhur niklar ro'yxatini ko'ring, o'ziga xos uslubingizni toping!\n4️⃣Tilni o'zgartirish ",
+        "admin_1_t" : "Admin uchun xabar yuboring:",
+        "admin_sent_message": "Xabar  adminga  yuborildi.",
+        "admin_reply_message": "Admin javobi:",
+        "back_button": "♻️ Orqaga"
+
+
+    },
+    "us" : {
+        "start_message": "Choose a language 🇺🇸 | Tilni tanlang 🇺🇿 | Выберите язык 🇷🇺",
+        "selected_language": "You selected English 🇺🇸",
+        "welcome_message" : "Hello!  Do you want to create unique, interesting, and memorable nicknames? Now it's super easy! 💫 Just enter your name, and we’ll provide you with the best options. 🚀",
+        "menu": {
+            "menu_button_1": "🔥 Popular Stickers",
+            "menu_button_2": "✨ Top Nick",
+            "menu_button_3": "👨‍💼 Admin",
+            "menu_button_4": "📙 Guide",
+            "menu_button_5": "Change language"
+        },
+        "help" :"Need help? We help you create unique, custom, and original nicknames! 🔥 Generate as many nicknames as you want, choose, and create a style that's totally yours! 😎",
+        "guide" : "💡 Make the most out of the bot and create your style! \n 1️⃣ Create short nicknames: Enter your name to get short and creative nicknames from the bot. \n 2️⃣ Explore the guide: Press '📙 Guide' for detailed instructions on how to use the bot. \n 3️⃣ Top nick collection: See the list of most stylish and popular nicknames, and find your unique style\n4️⃣Change the language",
+        "admin_1_t" : "Send a message to the admin:",
+        "admin_sent_message": "Message sent to admin.",
+        "admin_reply_message": "Admin's reply:",
+        "back_button": "♻️ Back"
+
+    },
+    "ru" : {
+        "start_message": "Выберите язык 🇷🇺 | Tilni tanlang 🇺🇿 | Choose a language 🇺🇸",
+        "selected_language": "Вы выбрали русский язык 🇷🇺",
+        "welcome_message" : "Здравствуйте!  Хотите создать уникальные, интересные и запоминающиеся ники? Теперь это очень просто! 💫 Просто введите своё имя, и мы предоставим вам лучшие варианты. 🚀",
+        "menu": {
+            "menu_button_1": "🔥 Популярные стикеры",
+            "menu_button_2": "✨ Топ ник",
+            "menu_button_3": "👨‍💼 Админ",
+            "menu_button_4": "📙 Гид",
+            "menu_button_5": "Изменить язык"
+        },
+        "help":"Нужна помощь? Мы поможем вам создать уникальные, индивидуальные и оригинальные ники! 🔥 Генерируйте столько ников, сколько хотите, выбирайте и создавайте стиль, который будет только вашим! 😎",
+        "guide" : "💡 Используйте бота максимально эффективно и создавайте свой стиль! \n 1️⃣ Создание коротких ников: Введите свое имя и получите короткие и креативные ники от бота. \n 2️⃣ Исследуйте руководство: Нажмите '📙 Руководство' для подробных инструкций по использованию бота. \n 3️⃣ Коллекция топовых ников: Посмотрите список самых стильных и популярных ников, и найдите свой уникальный стиль\n4️⃣Сменить язык",
+        "admin_1_t" : "Отправить сообщение администратору:",
+        "admin_sent_message": "Сообщение отправлено администратору.",
+        "admin_reply_message": "Ответ администратора:",
+        "back_button": "♻️ Назад"
+        
+    }
+}
+

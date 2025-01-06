@@ -23,9 +23,9 @@ async def generate_short_nicks(message: types.Message, state: FSMContext):
 
     markup = InlineKeyboardBuilder()
     if page_num > 0:
-        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}"))
+        markup.add(InlineKeyboardButton(text="⬅️", callback_data=f"short_page_{page_num-1}"))
     if page_num < total_pages - 1:
-        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}"))
+        markup.add(InlineKeyboardButton(text="➡️", callback_data=f"short_page_{page_num+1}"))
     
     await message.answer(text, reply_markup=markup.as_markup())
 
@@ -50,9 +50,9 @@ async def handle_short_page(callback_query: types.CallbackQuery, state: FSMConte
 
     markup = InlineKeyboardBuilder()
     if page_num > 0:
-        markup.add(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"short_page_{page_num-1}"))
+        markup.add(InlineKeyboardButton(text="⬅️", callback_data=f"short_page_{page_num-1}"))
     if page_num < total_pages - 1:
-        markup.add(InlineKeyboardButton(text="Oldinga ➡️", callback_data=f"short_page_{page_num+1}"))
+        markup.add(InlineKeyboardButton(text="➡️", callback_data=f"short_page_{page_num+1}"))
 
     await callback_query.message.edit_text(text, reply_markup=markup.as_markup())
     await callback_query.answer()
