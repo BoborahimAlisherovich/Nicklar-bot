@@ -100,3 +100,4 @@ async def language_us(message: Message, state: FSMContext):
     # Xabar yuborish
     text = texts.get(language_u, {}).get("start_message", "Tilga mos matn topilmadi.")
     await message.answer(text, parse_mode='html', reply_markup=language)
+

@@ -30,8 +30,6 @@ async def generate_short_nicks(message: types.Message, state: FSMContext):
     await message.answer(text, reply_markup=markup.as_markup())
 
 
-
-
 @dp.callback_query(lambda c: c.data.startswith("short_page_"))
 async def handle_short_page(callback_query: types.CallbackQuery, state: FSMContext):
     data = callback_query.data.split("_")

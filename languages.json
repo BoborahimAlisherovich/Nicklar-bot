@@ -15,7 +15,9 @@
         "admin_1_t" : "Admin uchun xabar yuboring:",
         "admin_sent_message": "Xabar  adminga  yuborildi.",
         "admin_reply_message": "Admin javobi:",
-        "back_button": "♻️ Orqaga"
+        "back_button": "♻️ Orqaga",
+        "about" : "Nik generatsiyasi: Foydalanuvchi ism kiritganda, bot bir nechta turli xil nik variantlarini yaratadi va ularni sahifalarga bo‘lib ko‘rsatadi. Har bir sahifada 10 ta nik ko‘rsatiladi va foydalanuvchi “Orqaga” yoki “Oldinga” tugmalari yordamida sahifalarni o‘zaro o‘zgartirishi mumkin.",
+        "invisible_nick" : "Ko'rinmas Nick"
 
 
     },
@@ -35,7 +37,9 @@
         "admin_1_t" : "Send a message to the admin:",
         "admin_sent_message": "Message sent to admin.",
         "admin_reply_message": "Admin's reply:",
-        "back_button": "♻️ Back"
+        "back_button": "♻️ Back",
+        "about": "Nickname Generation: When a user enters their name, the bot generates several different nickname options and displays them divided into pages. Each page shows 10 nicknames, and the user can navigate between pages using the “Back” or “Next” buttons.",
+        "invisible_nick" : "invisible nick"
 
     },
     "ru" : {
@@ -54,7 +58,9 @@
         "admin_1_t" : "Отправить сообщение администратору:",
         "admin_sent_message": "Сообщение отправлено администратору.",
         "admin_reply_message": "Ответ администратора:",
-        "back_button": "♻️ Назад"
+        "back_button": "♻️ Назад",
+        "about":"Генерация никнеймов: Когда пользователь вводит свое имя, бот создает несколько различных вариантов никнеймов и отображает их, разделенных на страницы. На каждой странице показывается 10 никнеймов, а пользователь может переключаться между страницами с помощью кнопок «Назад» или «Далее».",
+        "invisible_nick": "невидимый ник"
         
     }
 }

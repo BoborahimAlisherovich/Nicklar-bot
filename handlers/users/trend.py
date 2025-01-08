@@ -1,4 +1,3 @@
-
 from aiogram.types import Message
 from loader import dp, db
 from aiogram.filters import Command
@@ -26,11 +25,12 @@ def is_guied_us_message(message_text):
         for lang in texts
     ]
     return message_text in possible_texts
-# ["📙Qo'llanma","📙 Guide","📙 Гид"]
+
+
 @dp.message(lambda message: is_guied_us_message(message.text))
 async def guied_us(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
-
+    
     user = db.select_user_by_id(telegram_id=telegram_id)
 
     language = "uz" 
@@ -42,11 +42,8 @@ async def guied_us(message: Message, state: FSMContext):
     await message.answer(text, parse_mode='html')
     await state.clear()
 
-# Initialize logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
 
 
 
@@ -61,7 +58,7 @@ def get_pagination_keyboard(current_page):
         buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"next:{current_page + 1}"))
     return InlineKeyboardMarkup(inline_keyboard=[buttons])
 
-# Trenddagi Stikerlar sahifa matni
+
 def get_names_page(page):
     start = page * NAMES_PER_PAGE
     end = start + NAMES_PER_PAGE
@@ -74,13 +71,25 @@ def get_pagination_keyboardd(current_pages):
     if (current_pages + 1) * NAMES_PER_PAGES < len(top_nick):
         buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"next1:{current_pages + 1}"))
     return InlineKeyboardMarkup(inline_keyboard=[buttons])
-def get_names_pages(page):
+
+def get_names_pages(page, telegram_id):
     start = page * NAMES_PER_PAGES
     end = start + NAMES_PER_PAGES
     paginated_nicknamess = top_nick[start:end]
-    korinmas = "Ko'rinmas Nick"
+
+    # Foydalanuvchini bazadan olish
+    user = db.select_user_by_id(telegram_id=telegram_id)
+
+    language = "uz"  # Standart til
+
+    if user:
+        language = user[2]  # Foydalanuvchining tili bazadan olinadi
+
+    # Tarjima qilingan matnni olish
+    text = texts.get(language, {}).get("invisible_nick", "Tilga mos matn topilmadi.")
+
     return "\n\n\n".join([
-        f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{korinmas if idx + start == 0 else ''}</i>"
+        f"{idx + start + 1}- <code>{'⠿' if nicks.strip() == 'ㅤㅤㅤ ' else nicks}</code> <i>{text if idx + start == 0 else ''}</i>"
         for idx, nicks in enumerate(paginated_nicknamess)
     ])
 
@@ -99,6 +108,7 @@ async def send_names(message: types.Message, state: FSMContext):
 async def process_pagination(callback_query: types.CallbackQuery, state: FSMContext):
     action, page = callback_query.data.split(':')
     current_page = int(page)
+    telegram_id = callback_query.from_user.id
     await callback_query.message.edit_text(
         text="```" + get_names_page(current_page) + "```",
         reply_markup=get_pagination_keyboard(current_page),
@@ -110,8 +120,9 @@ async def process_pagination(callback_query: types.CallbackQuery, state: FSMCont
 @dp.message(lambda message: message.text in ["✨ Top nik","✨ Top Nick","✨ Топ ник"])
 async def send_namess(message: types.Message, state: FSMContext):
     current_page = 0
+    telegram_id = message.from_user.id
     await message.answer(
-        text=get_names_pages(current_page),
+        text=get_names_pages(current_page,telegram_id),
         reply_markup=get_pagination_keyboardd(current_page),
         parse_mode="HTML"
     )
@@ -121,8 +132,9 @@ async def send_namess(message: types.Message, state: FSMContext):
 async def process_paginations(callback_query: types.CallbackQuery, state: FSMContext):
     action, page = callback_query.data.split(':')
     current_page = int(page)
+    telegram_id = callback_query.from_user.id
     await callback_query.message.edit_text(
-        text=get_names_pages(current_page),
+        text=get_names_pages(current_page,telegram_id),
         reply_markup=get_pagination_keyboardd(current_page),
         parse_mode="HTML"
     )

@@ -15,11 +15,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
 @dp.message(F.text.in_(["♻️ Orqaga", "♻️ Back", "♻️ Назад"]))
 async def back_to_menu(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("Asosiy menyuga qaytish", reply_markup=create_menu_buttons("uz"))
+    # await message.answer("Asosiy menyuga qaytish", reply_markup=create_menu_buttons("uz"))
     telegram_id = message.from_user.id
 
     # Foydalanuvchining tilini aniqlash
@@ -33,11 +32,11 @@ async def back_to_menu(message: Message, state: FSMContext):
 
     # Menyuga qaytarish
     if language == "uz":
-        await message.answer("Asosiy menyuga qaytish", reply_markup=create_menu_buttons(language))
+        await message.answer("Ism kiriting yoki tugmalardan birini tanlang", reply_markup=create_menu_buttons(language))
     elif language == "us":
-        await message.answer("Return to main menu", reply_markup=create_menu_buttons(language))
+        await message.answer("Enter a name or select one of the buttons", reply_markup=create_menu_buttons(language))
     elif language == "ru":
-        await message.answer("Вернуться в главное меню", reply_markup=create_menu_buttons(language))
+        await message.answer("Введите имя или выберите одну из кнопок", reply_markup=create_menu_buttons(language))
 
 
 
@@ -145,13 +144,6 @@ async def handle_admin_message(message: types.Message, state: FSMContext):
 
 
 
-
-
-
-
-
-
-
 # Handling the reply callback
 @dp.callback_query(lambda c: c.data.startswith('reply:'))
 async def process_reply_callback(callback_query: CallbackQuery, state: FSMContext):
@@ -163,11 +155,6 @@ async def process_reply_callback(callback_query: CallbackQuery, state: FSMContex
     await state.set_state(AdminStates.waiting_for_reply_message)
     await callback_query.answer()
 
-
-
-
-
-
 # Handle admin's reply to the user
 @dp.message(AdminStates.waiting_for_reply_message)
 async def handle_admin_reply(message: Message, state: FSMContext):
@@ -175,7 +162,7 @@ async def handle_admin_reply(message: Message, state: FSMContext):
     user_id = data.get('reply_user_id')
     
     telegram_id = message.from_user.id
-    user = db.select_user_by_id(telegram_id=telegram_id)
+    user = db.select_user_by_id(telegram_id=user_id)
     language = user[2] if user else "uz"  # Default til 'uz'
 
     sent_message_text = texts.get(language, {}).get("admin_reply_message", "Xatolik yuz berdi.")

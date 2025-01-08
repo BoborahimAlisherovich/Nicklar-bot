@@ -23,8 +23,9 @@ def create_menu_buttons(language):
     
     menu_buttons = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text=button_texts["menu_button_1"]), KeyboardButton(text=button_texts["menu_button_3"])],
-            [KeyboardButton(text=button_texts["menu_button_2"]),KeyboardButton(text=button_texts["menu_button_5"]),  KeyboardButton(text=button_texts["menu_button_4"])]
+            [KeyboardButton(text=button_texts["menu_button_1"]), KeyboardButton(text=button_texts["menu_button_2"])],
+            [KeyboardButton(text=button_texts["menu_button_4"]),KeyboardButton(text=button_texts["menu_button_5"]),],
+            [ KeyboardButton(text=button_texts["menu_button_3"])]
         ],
         resize_keyboard=True,
     )
@@ -57,23 +58,3 @@ def create_back_button(language):
         resize_keyboard=True
     )
     return back_button
-
-# start_button = ReplyKeyboardMarkup(
-#     keyboard=[
-    
-#          [
-#          KeyboardButton(text="🔥Trenddagi Stikerlar"),
-#              KeyboardButton(text="✨Top nick"),
- 
-#         ],
-#             [
-         
-#             KeyboardButton(text="📙Qo'llanma"),
-#              KeyboardButton(text="👨‍💼Admin"),
-#         ],
-          
-        
-#     ],
-#   resize_keyboard=True
-# )
-
