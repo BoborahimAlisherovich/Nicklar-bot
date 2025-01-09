@@ -2,6 +2,9 @@ from aiogram.types import Message
 from loader import dp,db
 from aiogram.filters import Command
 from keyboard_buttons import admin_keyboard
+from aiogram.fsm.context import FSMContext
+from keyboard_buttons.admin_keyboard import create_menu_buttons
+
 # @dp.message(Command("about"))
 # async def about_commands(message:Message):
 #     await message.answer("Nik generatsiyasi: Foydalanuvchi ism kiritganda, bot bir nechta turli xil nik variantlarini yaratadi va ularni sahifalarga bo‘lib ko‘rsatadi. Har bir sahifada 10 ta nik ko‘rsatiladi va foydalanuvchi “Orqaga” yoki “Oldinga” tugmalari yordamida sahifalarni o‘zaro o‘zgartirishi mumkin.",reply_markup=admin_keyboard.start_button)
@@ -19,7 +22,7 @@ def load_texts():
 texts = load_texts()
 
 @dp.message(Command("about"))
-async def help_commands(message: Message):
+async def help_commands(message: Message,state:FSMContext):
     telegram_id = message.from_user.id
 
     user = db.select_user_by_id(telegram_id=telegram_id)
@@ -30,6 +33,7 @@ async def help_commands(message: Message):
         language = user[2]
     text = texts.get(language, {}).get("about", "Tilga mos matn topilmadi.")
 
-    await message.answer(text, parse_mode='html')
+    await message.answer(text, parse_mode='html' ,reply_markup=create_menu_buttons(language))
+    await state.clear()
 
     
