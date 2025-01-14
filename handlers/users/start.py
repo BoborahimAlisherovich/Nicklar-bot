@@ -29,7 +29,7 @@ async def start_command(message: Message, state: FSMContext):
         # Agar foydalanuvchi bazada mavjud bo'lsa
         selected_language = user[2]  # Ma'lumotlar bazasidagi til
         await message.answer(
-            text=texts[selected_language]["welcome_message"].format(full_name=full_name),
+            text=texts[selected_language]["welcome_message"],
             parse_mode='html',
             reply_markup=create_menu_buttons(selected_language)
         )
