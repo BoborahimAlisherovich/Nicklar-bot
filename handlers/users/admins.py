@@ -76,8 +76,16 @@ def create_inline_keyboard(user_id):
     )
     return keyboard_builder.as_markup()
 
+
+import re
+
 def get_user_link(user_id, first_name):
-    return f"[{first_name}](tg://user?id={user_id})"
+    # Maxsus belgilarni qochirish
+    escaped_name = re.sub(r'([_\*\[\]\(\)~`>\#+\-=|{}\.!])', r'\\\1', first_name)
+    return f"[{escaped_name}](tg://user?id={user_id})"
+
+# def get_user_link(user_id, first_name):
+#     return f"[{first_name}](tg://user?id={user_id})"
 
 # Handle admin messages and redirect to main menu with back button
 @dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
